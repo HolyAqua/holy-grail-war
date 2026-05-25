@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>聖杯戦争ボードゲーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+<!-- Firebase compat (非モジュール版で確実に読み込む) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyCcTK0XRsN0-bl8tU2bCIoRUBRpaQ8o4RY",
+  authDomain: "fgo-duel-online.firebaseapp.com",
+  databaseURL: "https://fgo-duel-online-default-rtdb.firebaseio.com",
+  projectId: "fgo-duel-online",
+  storageBucket: "fgo-duel-online.firebasestorage.app",
+  messagingSenderId: "75291475996",
+  appId: "1:75291475996:web:089788d85b68e41501dfd9",
+  measurementId: "G-PNFLGZETCZ"
+};
+firebase.initializeApp(firebaseConfig);
+window._db = firebase.database();
+window._dbRef = (db, path) => db.ref(path);
+window._dbSet = (ref, data) => ref.set(data);
+window._dbGet = (ref) => ref.once('value');
+window._dbOnValue = (ref, cb) => { ref.on('value', snap => cb(snap)); };
+window._dbUpdate = (ref, updates) => {
+  // updatesはパス→値のオブジェクト。compatではdbのrefから直接update
+  return window._db.ref('/').update(updates);
+};
+window._dbPush = (ref) => ref.push();
+window._dbRemove = (ref) => ref.remove();
+window._dbOff = (ref) => ref.off();
+window._firebaseReady = true;
+window.dispatchEvent(new Event('firebaseReady'));
+</script>
+
+<style>
+:root {
+  --bg: #0d0814;
+  --bg2: #130e20;
+  --bg3: #1a1430;
+  --gold: #c9a84c;
+  --gold2: #f5e098;
+  --text: #e8e0f0;
+  --text2: rgba(232,224,240,.6);
+  --text3: rgba(232,224,240,.35);
+  --border: rgba(201,168,76,.2);
+  --border2: rgba(255,255,255,.08);
+  --red: #A32D2D;
+  --blue: #2244aa;
+  --green: #0F6E56;
+  --purple: #534AB7;
+  --r: 8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;font-size:14px;line-height:1.6}
+
+/* ── レイアウト ── */
+.screen{display:none;min-height:100vh;padding:1.5rem}
+.screen.active{display:block}
+#screen-title,#screen-create-join{padding:0;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;text-align:center}
+.center{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;padding:2rem}
+
+/* ── ボタン ── */
+button{cursor:pointer;font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:10px 20px;border-radius:var(--r);border:1px solid var(--border2);background:rgba(255,255,255,.06);color:var(--text);transition:all .15s;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+button:hover:not(:disabled){background:rgba(255,255,255,.12)}
+button:active:not(:disabled){transform:scale(.98)}
+button:disabled{opacity:.35;cursor:default}
+.btn-gold{background:rgba(201,168,76,.15);border-color:var(--border);color:var(--gold2)}
+.btn-gold:hover:not(:disabled){background:rgba(201,168,76,.3)}
+.btn-red{background:rgba(163,45,45,.2);border-color:rgba(163,45,45,.4);color:#ff9090}
+.btn-red:hover:not(:disabled){background:rgba(163,45,45,.35)}
+.btn-green{background:rgba(15,110,86,.2);border-color:rgba(15,110,86,.4);color:#70e0a0}
+.btn-green:hover:not(:disabled){background:rgba(15,110,86,.35)}
+
+/* ── 入力 ── */
+input,select{font-family:'Noto Sans JP',sans-serif;font-size:13px;padding:10px 14px;border-radius:var(--r);border:1px solid var(--border2);background:rgba(255,255,255,.05);color:var(--text);width:100%;outline:none;transition:border-color .15s}
+input:focus,select:focus{border-color:var(--border)}
+input::placeholder{color:var(--text3)}
+select option{background:#1a1430}
+label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;letter-spacing:.05em}
+
+/* ── カード系 ── */
+.card{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:1.5rem}
+.card-gold{background:linear-gradient(135deg,rgba(201,168,76,.08),rgba(201,168,76,.03));border-color:var(--border)}
+
+/* ── タイトル ── */
+#screen-title{background:radial-gradient(ellipse at 50% 0%,rgba(83,74,183,.3) 0%,transparent 60%)}
+.title-main{font-size:36px;font-weight:700;background:linear-gradient(135deg,#f5e098,#c9a84c,#a07830);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:.1em;text-align:center;margin-bottom:.5rem}
+.title-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:3rem;letter-spacing:.05em}
+.title-sep{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:2rem auto}
+.title-btns{display:flex;flex-direction:column;gap:12px;width:100%;max-width:320px;align-items:center}
+.title-btn{padding:14px 24px;font-size:14px;font-weight:500;border-radius:10px;justify-content:center;width:100%}
+.discord-notice{background:rgba(88,101,242,.15);border:1px solid rgba(88,101,242,.3);border-radius:var(--r);padding:10px 14px;font-size:12px;color:rgba(180,190,255,.8);display:flex;align-items:center;gap:8px;max-width:320px;margin-top:1rem}
+
+/* ── ロビー ── */
+#screen-lobby{max-width:500px;margin:0 auto}
+.lobby-header{text-align:center;margin-bottom:2rem}
+.lobby-title{font-size:22px;font-weight:700;color:var(--gold2);margin-bottom:.5rem}
+.room-code-display{font-size:48px;font-weight:700;letter-spacing:.3em;color:var(--gold);text-align:center;padding:1rem;background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:12px;margin:1rem 0;font-family:monospace}
+.player-list{display:flex;flex-direction:column;gap:8px;margin:1rem 0}
+.player-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r)}
+.player-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.player-name-lobby{font-size:13px;font-weight:500;flex:1}
+.player-status{font-size:11px;padding:3px 8px;border-radius:20px}
+.status-ready{background:rgba(15,110,86,.2);color:#70e0a0;border:1px solid rgba(15,110,86,.3)}
+.status-wait{background:rgba(255,255,255,.05);color:var(--text3);border:1px solid var(--border2)}
+.status-host{background:rgba(201,168,76,.15);color:var(--gold2);border:1px solid var(--border)}
+
+/* ── 準備画面 ── */
+#screen-prepare{max-width:480px;margin:0 auto}
+.prep-step{margin-bottom:1.5rem}
+.prep-step-title{font-size:13px;font-weight:700;color:var(--gold);margin-bottom:.75rem;display:flex;align-items:center;gap:8px}
+.prep-step-num{width:22px;height:22px;border-radius:50%;background:rgba(201,168,76,.2);border:1px solid var(--border);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--gold2)}
+
+
+
+/* 召喚カード */
+.summon-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border);border-radius:12px;padding:1.5rem;text-align:center;margin:1rem 0}
+.summon-flip{width:120px;height:168px;margin:0 auto 1rem;perspective:600px;cursor:pointer}
+.sf-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .6s}
+.sf-inner.flipped{transform:rotateY(180deg)}
+.sf-face{position:absolute;inset:0;border-radius:10px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;border:1px solid var(--border2)}
+.sf-back{background:linear-gradient(135deg,#1a0f2e,#0f1a2e)}
+.sf-front{transform:rotateY(180deg);background:linear-gradient(135deg,var(--bg2),var(--bg3));border-color:var(--border)}
+.sv-badge{font-size:10px;padding:3px 8px;border-radius:20px;margin-bottom:6px;font-weight:700}
+.sv-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.sv-cls{font-size:11px;color:var(--text2)}
+.sv-trait{font-size:9px;color:var(--text3);margin-top:6px;text-align:center;line-height:1.6}
+
+/* ── ゲーム画面 ── */
+#screen-game{padding:.75rem;max-width:100%}
+.phase-bar{display:flex;border:1px solid var(--border2);border-radius:var(--r);overflow:hidden;margin-bottom:10px}
+.ps{flex:1;padding:6px 2px;text-align:center;font-size:10px;font-weight:500;color:var(--text3);border-right:1px solid var(--border2);transition:all .3s}
+.ps:last-child{border-right:none}
+.ps.active{background:var(--purple);color:#fff}
+.ps.done{background:rgba(15,110,86,.2);color:#70e0a0}
+.ps .pn{font-size:8px;display:block;opacity:.7}
+.g-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:8px}
+.g-turn-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.g-turn-name{font-size:13px;font-weight:700;margin-left:8px}
+.g-turn-status{font-size:11px;color:var(--text2);margin-left:4px}
+.g-main{display:grid;grid-template-columns:150px 1fr;gap:8px;margin-bottom:8px}
+.plist-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px;overflow-y:auto;max-height:340px}
+.plist-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border2)}
+.pp{padding:5px 0;border-bottom:1px solid var(--border2)}
+.pp:last-child{border-bottom:none}
+.pp.cur{background:rgba(201,168,76,.07);border-radius:4px;padding:5px 4px}
+.pp.dead{opacity:.3}
+.pp-top{display:flex;align-items:center;gap:5px;margin-bottom:2px}
+.pp-num{width:18px;height:18px;border-radius:50%;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pp-name-text{font-size:12px;font-weight:500;flex:1}
+.pp-cls-badge{font-size:8px;padding:1px 4px;border-radius:8px}
+.pp-detail{font-size:10px;color:var(--text3);padding-left:23px;line-height:1.8}
+.action-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px;position:relative;overflow:hidden;min-height:200px}
+
+/* 手札 */
+.hand-area{margin-bottom:12px}
+.hand-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.hand-row{display:flex;gap:5px;flex-wrap:wrap;min-height:72px;align-items:flex-end}
+.hc{width:52px;height:70px;border-radius:6px;border:1.5px solid var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.03);transition:all .15s;padding:3px;position:relative}
+.hc:hover{border-color:var(--border);transform:translateY(-3px)}
+.hc.sel{border-color:var(--gold);background:rgba(201,168,76,.1);transform:translateY(-5px);border-width:2px}
+.hc.sel-battle{border-color:#70e0a0;background:rgba(15,110,86,.1);transform:translateY(-5px);border-width:2px}
+.hc-t{font-size:12px;font-weight:700}
+.hc-p{font-size:18px;font-weight:700;color:var(--text)}
+.hc-s{font-size:8px;color:var(--text3);text-align:center;margin-top:1px}
+.hc-num{position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--green);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.B-c{color:#E07070}.A-c{color:#7090E0}.Q-c{color:#70C090}
+
+.act-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px}
+.act-row{display:flex;gap:6px;flex-wrap:wrap}
+.act-hint{font-size:11px;color:var(--text3);margin-top:6px;min-height:16px}
+.act-btn{font-size:12px;padding:10px 16px;font-weight:500}
+
+/* エフェクトオーバーレイ */
+.eff-ov{display:none;position:absolute;inset:0;border-radius:var(--r);align-items:center;justify-content:center;flex-direction:column;gap:10px;z-index:20;pointer-events:none}
+.eff-ov.show{display:flex}
+.draw-ov{background:var(--bg2)}
+@keyframes cardPop{0%{opacity:0;transform:scale(.4) rotateY(90deg)}60%{opacity:1;transform:scale(1.1)}100%{transform:scale(1)}}
+.draw-card{width:60px;height:84px;border-radius:8px;border:2px solid var(--gold);background:rgba(201,168,76,.1);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:cardPop .5s ease forwards}
+.draw-lbl{font-size:13px;font-weight:700;color:var(--gold)}
+.defeat-ov{background:rgba(163,45,45,.96)}
+@keyframes defPop{0%{opacity:0;transform:scale(.2)}50%{transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+.def-icon-big{font-size:52px;animation:defPop .4s ease forwards}
+.shard{position:absolute;width:8px;height:8px;border-radius:1px;animation:shardFly .7s ease forwards;opacity:0}
+@keyframes shardFly{0%{opacity:1;transform:translate(0,0)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(var(--tr))}}
+.cs-ov{background:rgba(10,6,18,.96)}
+@keyframes sealGlow{0%{opacity:0;transform:scale(.4);box-shadow:none}50%{box-shadow:0 0 40px rgba(201,168,76,.6)}100%{opacity:1;transform:scale(1)}}
+.cs-seal{width:80px;height:80px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-size:36px;animation:sealGlow .6s ease forwards}
+.cs-title-text{font-size:18px;font-weight:700;color:var(--gold);letter-spacing:.1em}
+.cs-pip-row{display:flex;gap:6px;margin-top:6px}
+.cs-pip{width:14px;height:14px;border-radius:50%;background:var(--gold)}
+.cs-pip.used{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.2)}
+
+/* ボード */
+#board-wrap{margin-bottom:8px;overflow-x:auto;position:relative}
+canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2);cursor:pointer}
+.cell-tt{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:12px;pointer-events:none;z-index:10;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none}
+.cell-tt.show{display:block}
+.board-hint{font-size:10px;color:var(--text3);margin-bottom:4px}
+
+/* ログ */
+.log-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px}
+.log-lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:6px}
+#log{font-size:11px;max-height:80px;overflow-y:auto;color:var(--text2);line-height:1.9}
+.le{color:#a090ff;font-weight:700}.lb{color:#ff9090;font-weight:700}.lw{color:#70e0a0;font-weight:700}
+
+/* ── 戦闘画面 ── */
+.battle-screen{display:none;position:fixed;inset:0;z-index:100;background:linear-gradient(160deg,#0d0814,#1a0f2e 50%,#0f1a2e);padding:1.5rem;overflow-y:auto}
+.battle-screen.show{display:block}
+.battle-inner{max-width:560px;margin:0 auto;position:relative;z-index:1}
+.battle-vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:1rem}
+.bf{background:rgba(255,255,255,.04);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.06)}
+.bf.atk{border-color:rgba(163,45,45,.3)}
+.bf.def{border-color:rgba(83,74,183,.3)}
+.bf-ico{width:48px;height:48px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;position:relative}
+.bf-ring{position:absolute;inset:-3px;border-radius:50%;border:2px solid;opacity:.4}
+.bf-name-battle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.bf-cls-battle{font-size:10px;color:var(--text3);margin-bottom:5px}
+.bf-tags{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.bf-tag{font-size:9px;padding:2px 5px;border-radius:8px;background:rgba(255,255,255,.06);color:var(--text2)}
+.vs-text{font-size:24px;font-weight:700;color:var(--gold);text-align:center}
+.cmp-area{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.cmp-side{background:rgba(255,255,255,.03);border-radius:8px;padding:10px}
+.cmp-lbl{font-size:10px;color:var(--text3);letter-spacing:.05em;margin-bottom:6px}
+.cmp-cards{display:flex;gap:4px;flex-wrap:wrap;min-height:62px;margin-bottom:6px}
+@keyframes cardFlip{0%{opacity:0;transform:rotateY(90deg) scale(.8)}100%{opacity:1;transform:rotateY(0) scale(1)}}
+.cc2{width:42px;height:60px;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1.5px solid;animation:cardFlip .4s ease forwards;padding:2px}
+.cc2.B{background:rgba(163,45,45,.2);border-color:rgba(163,45,45,.5)}.cc2.B .cc2-t{color:#E07070}
+.cc2.A{background:rgba(24,95,165,.2);border-color:rgba(24,95,165,.5)}.cc2.A .cc2-t{color:#7090E0}
+.cc2.Q{background:rgba(15,110,86,.2);border-color:rgba(15,110,86,.5)}.cc2.Q .cc2-t{color:#70C090}
+.cc2-t{font-size:10px;font-weight:700;margin-bottom:1px}
+.cc2-p{font-size:17px;font-weight:700;color:#fff}
+.cc2-s{font-size:7px;color:rgba(255,255,255,.35);text-align:center;margin-top:1px}
+.cmp-total{font-size:24px;font-weight:700;text-align:center}
+.cmp-bonus{font-size:11px;text-align:center;min-height:14px;color:var(--text3);margin-top:2px}
+.chain-banners{margin-bottom:1rem}
+.chain-banner{border-radius:8px;padding:8px 12px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+@keyframes chainPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+.chain-banner{animation:chainPop .5s ease forwards}
+.chain-banner.brave{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.4)}
+.chain-banner.cQ{background:rgba(15,110,86,.15);border:1px solid rgba(15,110,86,.4)}
+.chain-banner.cA{background:rgba(24,95,165,.15);border:1px solid rgba(24,95,165,.4)}
+.chain-banner.cB{background:rgba(163,45,45,.15);border:1px solid rgba(163,45,45,.4)}
+.cb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.cb-body{flex:1}
+.cb-who{font-size:10px;color:var(--text3);margin-bottom:2px}
+.cb-chain{font-size:14px;font-weight:700;color:#fff;letter-spacing:.05em}
+.cb-bonus{font-size:11px;color:var(--text2);margin-top:1px}
+
+/* 結果 */
+.result-ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .4s;z-index:110}
+.result-ov.show{opacity:1;pointer-events:all}
+.result-ov.win{background:radial-gradient(circle at center,rgba(15,110,86,.95),rgba(0,0,0,.95))}
+.result-ov.lose{background:radial-gradient(circle at center,rgba(163,45,45,.95),rgba(0,0,0,.95))}
+.result-ov.draw{background:radial-gradient(circle at center,rgba(201,168,76,.85),rgba(0,0,0,.95))}
+@keyframes resPop{0%{opacity:0;transform:scale(.2) rotate(-6deg)}50%{transform:scale(1.06) rotate(1deg)}100%{opacity:1;transform:scale(1)}}
+.res-icon{font-size:60px;animation:resPop .6s ease forwards}
+.res-text{font-size:40px;font-weight:700;color:#fff;letter-spacing:.12em;animation:resPop .6s ease .1s both}
+.res-detail{font-size:13px;color:rgba(255,255,255,.7);margin-top:8px;text-align:center;animation:resPop .4s ease .3s both;opacity:0}
+.res-actions{margin-top:24px;animation:resPop .4s ease .5s both;opacity:0;display:flex;gap:8px}
+
+/* ── モーダル ── */
+.modal-wrap{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:1.5rem}
+.modal-wrap.show{display:flex}
+.modal-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.5rem;max-width:420px;width:100%}
+.modal-title{font-size:16px;font-weight:700;text-align:center;margin-bottom:.75rem;color:var(--gold2)}
+.modal-body{font-size:12px;color:var(--text2);line-height:1.9;margin-bottom:1rem;white-space:pre-line}
+.modal-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+
+
+/* 画像アップロード */
+.img-upload-area{width:100%;height:140px;border-radius:var(--r);border:2px dashed rgba(201,168,76,.25);background:rgba(255,255,255,.03);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.img-upload-area:hover{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.05)}
+.img-upload-area img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;border-radius:calc(var(--r) - 2px)}
+.img-upload-area .img-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:0;transition:opacity .2s;border-radius:calc(var(--r) - 2px)}
+.img-upload-area:hover .img-overlay{opacity:1}
+.img-upload-area.drag-over{border-color:rgba(201,168,76,.9);background:rgba(201,168,76,.12);transform:scale(1.02)}
+.img-upload-label{font-size:11px;color:rgba(201,168,76,.6)}
+.img-upload-hint{font-size:10px;color:var(--text3)}
+.img-upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.img-card-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:4px}
+/* SVGアイコン */
+.cls-ico{display:inline-block}
+
+/* 番号バッジ */
+.num-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;flex-shrink:0}
+
+/* ターン外プレイヤー待機 */
+.waiting-banner{background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;text-align:center;font-size:12px;color:var(--gold2)}
+</style>
+</head>
+<body>
+
+<!-- タイトル -->
+<div id="screen-title" class="screen active center">
+  <div class="title-main">聖杯戦争</div>
+  <div class="title-sub">FATE BOARD GAME · ONLINE</div>
+  <div class="title-sep"></div>
+  <div class="title-btns">
+    <button class="title-btn btn-gold" onclick="showCreateJoin('create')">
+      <i class="ti ti-plus"></i>ルームを作成する（ホスト）
+    </button>
+    <button class="title-btn" onclick="showCreateJoin('join')">
+      <i class="ti ti-door-enter"></i>ルームに参加する
+    </button>
+
+  </div>
+  <div class="discord-notice">
+    <i class="ti ti-brand-discord" style="font-size:16px;color:rgb(88,101,242)"></i>
+    <span>通話はDiscordを使いながら遊ぶことを推奨します</span>
+  </div>
+</div>
+
+<!-- ルーム作成/参加 -->
+<div id="screen-create-join" class="screen center" style="display:none">
+  <div class="card card-gold" style="width:100%;max-width:380px">
+    <div id="cj-title" style="font-size:18px;font-weight:700;color:var(--gold2);text-align:center;margin-bottom:1.5rem"></div>
+    <div id="cj-body"></div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button onclick="SS('title')"><i class="ti ti-arrow-left"></i>戻る</button>
+      <button class="btn-gold" id="cj-btn" style="flex:1;justify-content:center"></button>
+    </div>
+  </div>
+</div>
+
+<!-- ロビー -->
+<div id="screen-lobby" class="screen" style="display:none">
+  <div class="lobby-header">
+    <div class="lobby-title" id="lobby-title">ロビー</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:.5rem">ルームコード</div>
+    <div class="room-code-display" id="room-code-display">----</div>
+    <div style="font-size:11px;color:var(--text3)">このコードを参加者に教えてください</div>
+  </div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="plist-label">参加者 <span id="lobby-count">0</span>人</div>
+    <div class="player-list" id="lobby-player-list"></div>
+  </div>
+  <div id="lobby-actions"></div>
+</div>
+
+<!-- 準備画面 -->
+<div id="screen-prepare" class="screen" style="display:none">
+  <div style="font-size:18px;font-weight:700;color:var(--gold2);margin-bottom:1.5rem;text-align:center">
+    <i class="ti ti-sparkles"></i> 召喚の儀
+  </div>
+
+  <!-- マスター名 -->
+  <div class="prep-step">
+    <div class="prep-step-title"><div class="prep-step-num">1</div>マスター名</div>
+    <input type="text" id="prep-name" placeholder="あなたのマスター名" maxlength="12">
+  </div>
+
+  <!-- 召喚 -->
+  <div class="prep-step">
+    <div class="prep-step-title"><div class="prep-step-num">2</div>サーヴァントを召喚する</div>
+    <div class="summon-card">
+      <div class="summon-flip" onclick="doSummonFlip()" id="summon-flip-wrap">
+        <div class="sf-inner" id="sf-inner">
+          <div class="sf-face sf-back">
+            <i class="ti ti-star" style="font-size:40px;color:rgba(201,168,76,.4);margin-bottom:8px"></i>
+            <div style="font-size:10px;color:var(--text3);letter-spacing:.1em">SERVANT</div>
+          </div>
+          <div class="sf-face sf-front">
+            <div class="sv-badge" id="sv-badge"></div>
+            <i class="ti" id="sv-icon" style="font-size:28px;margin:6px 0"></i>
+            <div class="sv-name" id="sv-name"></div>
+            <div class="sv-cls" id="sv-cls"></div>
+            <div class="sv-trait" id="sv-trait"></div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--text3)" id="summon-hint">カードをクリックして召喚</div>
+    </div>
+  </div>
+
+
+  <!-- 画像アップロード -->
+  <div class="prep-step">
+    <div class="prep-step-title"><div class="prep-step-num">3</div>画像を設定する（任意）</div>
+    <div class="img-upload-grid">
+      <div>
+        <div class="img-card-label">MASTER</div>
+        <div class="img-upload-area" id="master-upload-area" onclick="document.getElementById('file-master-prep').click()">
+          <i class="ti ti-user" style="font-size:28px;color:rgba(201,168,76,.3)"></i>
+          <div class="img-upload-label">マスター画像</div>
+          <div class="img-upload-hint">クリックでアップロード</div>
+          <div class="img-overlay">
+            <i class="ti ti-upload" style="font-size:20px;color:rgba(255,255,255,.8)"></i>
+            <span style="font-size:11px;color:rgba(255,255,255,.7)">画像を変更</span>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="img-card-label">SERVANT</div>
+        <div class="img-upload-area" id="servant-upload-area" onclick="document.getElementById('file-servant-prep').click()">
+          <i class="ti ti-sword" style="font-size:28px;color:rgba(201,168,76,.3)"></i>
+          <div class="img-upload-label">サーヴァント画像</div>
+          <div class="img-upload-hint">クリックでアップロード</div>
+          <div class="img-overlay">
+            <i class="ti ti-upload" style="font-size:20px;color:rgba(255,255,255,.8)"></i>
+            <span style="font-size:11px;color:rgba(255,255,255,.7)">画像を変更</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <input type="file" id="file-master-prep" accept="image/*" style="display:none" onchange="applyPrepImg(this,'master')">
+    <input type="file" id="file-servant-prep" accept="image/*" style="display:none" onchange="applyPrepImg(this,'servant')">
+  </div>
+
+  <button class="btn-gold" id="prep-ready-btn" onclick="setReady()" style="width:100%;justify-content:center;padding:14px;font-size:14px;font-weight:700" disabled>
+    <i class="ti ti-check"></i>準備完了
+  </button>
+</div>
+
+<!-- ゲーム画面 -->
+<div id="screen-game" class="screen" style="display:none">
+  <div class="phase-bar">
+    <div class="ps" id="ps-discard"><span class="pn">①</span>捨てる</div>
+    <div class="ps" id="ps-action"><span class="pn">②</span>行動</div>
+    <div class="ps" id="ps-master"><span class="pn">③</span>マスター</div>
+    <div class="ps" id="ps-cell"><span class="pn">④</span>マス効果</div>
+    <div class="ps" id="ps-draw1"><span class="pn">⑤</span>ドロー</div>
+    <div class="ps" id="ps-combat"><span class="pn">⑥</span>戦闘</div>
+    <div class="ps" id="ps-draw2"><span class="pn">⑦</span>補充</div>
+  </div>
+  <div class="g-header">
+    <div style="display:flex;align-items:center">
+      <div class="g-turn-dot" id="g-turn-dot"></div>
+      <div class="g-turn-name" id="g-turn-name"></div>
+      <div class="g-turn-status" id="g-turn-status"></div>
+    </div>
+    <div style="font-size:11px;color:var(--text2)" id="g-round"></div>
+  </div>
+  <div class="g-main">
+    <div class="plist-panel">
+      <div class="plist-label">参加者</div>
+      <div id="g-plist"></div>
+    </div>
+    <div class="action-panel" id="action-panel">
+      <!-- ドロー演出 -->
+      <div class="eff-ov draw-ov" id="ov-draw">
+        <div class="draw-lbl" id="draw-lbl">ドロー！</div>
+        <div class="draw-card" id="draw-card">
+          <div id="dc-t" style="font-size:14px;font-weight:700"></div>
+          <div id="dc-p" style="font-size:22px;font-weight:700"></div>
+          <div id="dc-s" style="font-size:9px;color:var(--text3);text-align:center;margin-top:2px"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text2)" id="draw-sub"></div>
+      </div>
+      <!-- 撃破演出 -->
+      <div class="eff-ov defeat-ov" id="ov-defeat">
+        <div id="def-shards-el"></div>
+        <div class="def-icon-big">💀</div>
+        <div id="def-name-el" style="font-size:16px;font-weight:700;color:#fff;text-align:center"></div>
+        <div id="def-sub-el" style="font-size:12px;color:rgba(255,255,255,.6);text-align:center"></div>
+      </div>
+      <!-- 令呪演出 -->
+      <div class="eff-ov cs-ov" id="ov-cs">
+        <div class="cs-seal">令</div>
+        <div class="cs-title-text" id="cs-title-el"></div>
+        <div id="cs-name-el" style="font-size:13px;color:rgba(255,255,255,.7)"></div>
+        <div id="cs-effect-el" style="font-size:11px;color:var(--text3);margin-top:4px"></div>
+        <div class="cs-pip-row" id="cs-pips"></div>
+      </div>
+      <!-- メインコンテンツ -->
+      <div id="ap-content">
+        <div class="hand-area">
+          <div class="hand-label">手札 <span style="font-weight:400;color:var(--text3)" id="hand-sub"></span></div>
+          <div class="hand-row" id="hand-row"></div>
+        </div>
+        <div class="act-label" id="act-label">アクション</div>
+        <div class="act-row" id="act-row"></div>
+        <div class="act-hint" id="act-hint"></div>
+      </div>
+    </div>
+  </div>
+  <div class="board-hint">マスをクリックすると効果の詳細を確認できます</div>
+  <div id="board-wrap">
+    <canvas id="board"></canvas>
+    <div class="cell-tt" id="cell-tt">
+      <div id="ct-title" style="font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px"></div>
+      <div id="ct-desc" style="font-size:11px;color:var(--text2);line-height:1.7"></div>
+    </div>
+  </div>
+  <div class="log-wrap"><div class="log-lbl">ログ</div><div id="log"></div></div>
+</div>
+
+<!-- 戦闘画面 -->
+<div class="battle-screen" id="battle-screen">
+  <div class="battle-inner">
+    <div class="battle-vs" id="battle-vs"></div>
+    <div class="chain-banners" id="chain-banners"></div>
+    <div class="cmp-area" id="cmp-area"></div>
+    <div style="text-align:center;margin-top:1rem">
+      <button class="btn-gold" id="battle-result-btn" onclick="showBattleResult()">⚡ 結果を見る</button>
+    </div>
+  </div>
+  <div class="result-ov" id="result-ov">
+    <div class="res-icon" id="res-icon"></div>
+    <div class="res-text" id="res-text"></div>
+    <div class="res-detail" id="res-detail"></div>
+    <div class="res-actions">
+      <button class="btn-gold" id="res-next-btn">次へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- モーダル -->
+<div class="modal-wrap" id="modal">
+  <div class="modal-box">
+    <div class="modal-title" id="mt"></div>
+    <div id="mb"></div>
+    <div class="modal-btns" id="mbtns"></div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  データ定義
+// ══════════════════════════════════════
+const PLAYER_COLORS=['#E05540','#3A9EE0','#E0B030','#30C080','#C040C0','#E07030','#50C0C0','#8060E0','#C0C030','#E04080','#60A050','#80A0E0'];
+const CC={セイバー:'#534AB7',アーチャー:'#185FA5',ランサー:'#D85A30',ライダー:'#0F6E56',キャスター:'#7b3fa0',アサシン:'#3B6D11',バーサーカー:'#A32D2D',シールダー:'#185FA5',ルーラー:'#854F0B',アヴェンジャー:'#993556'};
+const CI={セイバー:'ti-sword',アーチャー:'ti-bow',ランサー:'ti-arrow-narrow-up',ライダー:'ti-horse',キャスター:'ti-wand',アサシン:'ti-eye-off',バーサーカー:'ti-flame',シールダー:'ti-shield',ルーラー:'ti-scale',アヴェンジャー:'ti-bolt'};
+const CT={セイバー:'最優 — 戦闘+2・移動+1',アーチャー:'単独行動 — 前方の公開SV全員に攻撃可',ランサー:'対魔力 — 防衛時+3',ライダー:'騎乗 — 移動+2',キャスター:'陣地作成 — マスターへの直接攻撃を1度無効化',アサシン:'気配遮断 — 戦闘後に自動で隠密に戻る',バーサーカー:'狂化 — 攻撃+4・防衛-2',シールダー:'自陣防御 — マスターと同行時、防衛+4',ルーラー:'真名看破 — 相手の隠密を強制解除',アヴェンジャー:'忘却補正 — 攻撃+3'};
+const BASIC=['セイバー','アーチャー','ランサー','ライダー','キャスター','アサシン','バーサーカー'];
+const EX=['シールダー','ルーラー','アヴェンジャー'];
+const SP={セイバー:['アルトリア','ジル剣','ネロ','アーサー','ネロブライド','カエサル','沖田','リリィ'],アーチャー:['ギルガメッシュ','エウリュアレ','アルジュナ','アーラシュ','メフィスト','信長','アルテラサンタ','イシュタル','エレナ水着'],ランサー:['スカサハ','カルナ','弁慶','頼光','エレシュキガル','エルキドゥ','ジャンヌオルタリリィ','メドゥーサ槍'],ライダー:['メイヴ','オジマンディアス','牛若丸','アルトリア騎オルタ','サンタオルタ','ギル騎','ケツァル','イシュタル水着'],キャスター:['マーリン','ジル術','ニトクリス','マリー','モーツァルト','パラケルスス','ナーサリー','ギル術'],アサシン:['山の翁','ステンノ','クレオパトラ','マルタ殺','ジキル','以蔵'],バーサーカー:['クーオルタ','アステリオス','茶々','土方','ダレイオス','バニヤン'],シールダー:['マシュ'],ルーラー:['ジャンヌ','マルタ裁'],アヴェンジャー:['ジャンヌオルタ','アンリマユ']};
+const CD={'アルトリア':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:4}],'ギルガメッシュ':[{t:'Q',p:5},{t:'A',p:4},{t:'A',p:2},{t:'B',p:5},{t:'B',p:2}],'スカサハ':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:2},{t:'A',p:4},{t:'B',p:3}],'メイヴ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'マーリン':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'山の翁':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'クーオルタ':[{t:'Q',p:2},{t:'A',p:4},{t:'A',p:6},{t:'B',p:4},{t:'B',p:2}],'マシュ':[{t:'Q',p:2},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3},{t:'B',p:3}],'ジャンヌ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4}],'カルナ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:5},{t:'B',p:3}],'エウリュアレ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ジル術':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:2},{t:'B',p:3}],'アステリオス':[{t:'B',p:1},{t:'B',p:2},{t:'B',p:5},{t:'A',p:4},{t:'Q',p:2}],'ジャンヌオルタ':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:5},{t:'B',p:4}],'アルジュナ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4}],'ステンノ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:4},{t:'B',p:3}],'メドゥーサ槍':[{t:'Q',p:4},{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ジル剣':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'オジマンディアス':[{t:'Q',p:5},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'ニトクリス':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:2},{t:'B',p:4}],'ネロ':[{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'牛若丸':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'弁慶':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'アンリマユ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:2},{t:'B',p:3}],'アーサー':[{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:5},{t:'B',p:3}],'クレオパトラ':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'ネロブライド':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'カエサル':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'アーラシュ':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:2},{t:'A',p:3},{t:'B',p:3}],'エレナ水着':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'パラケルスス':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'メフィスト':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:2}],'イシュタル水着':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3},{t:'B',p:3}],'アルトリア騎オルタ':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'頼光':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:2}],'マリー':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:2},{t:'B',p:4}],'ジキル':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:4},{t:'B',p:3}],'モーツァルト':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'A',p:2},{t:'B',p:3}],'沖田':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:3},{t:'B',p:3}],'信長':[{t:'Q',p:2},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'茶々':[{t:'B',p:3},{t:'B',p:3},{t:'B',p:3},{t:'A',p:4},{t:'Q',p:4}],'土方':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:4},{t:'B',p:2}],'以蔵':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:2}],'バニヤン':[{t:'B',p:3},{t:'B',p:3},{t:'B',p:2},{t:'A',p:4},{t:'Q',p:2}],'サンタオルタ':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'ジャンヌオルタリリィ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:3},{t:'B',p:3}],'アルテラサンタ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'ナーサリー':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:4},{t:'B',p:2}],'ダレイオス':[{t:'B',p:4},{t:'B',p:2},{t:'B',p:2},{t:'A',p:5},{t:'Q',p:3}],'ギル術':[{t:'Q',p:3},{t:'A',p:5},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'エルキドゥ':[{t:'Q',p:5},{t:'Q',p:4},{t:'Q',p:1},{t:'A',p:5},{t:'B',p:3}],'イシュタル':[{t:'Q',p:3},{t:'A',p:5},{t:'A',p:4},{t:'B',p:4},{t:'B',p:2}],'エレシュキガル':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:6},{t:'B',p:4},{t:'B',p:1}],'ケツァル':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'マルタ裁':[{t:'Q',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3},{t:'B',p:2}],'リリィ':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'マルタ殺':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ギル騎':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}]};
+
+const CINFO={
+  start:{c:'#2a2820',ic:'▶',lb:'START',desc:'スタートマス。安全地帯で戦闘は発生しない。'},
+  goal:{c:'#2a2010',ic:'★',lb:'GOAL',desc:'ゴール！最初に到達したプレイヤーの勝利。'},
+  normal:{c:'#1a1820',ic:'',lb:'通常',desc:'効果なし。'},
+  reveal:{c:'#102030',ic:'👁',lb:'隠密解除',desc:'隠密状態が強制解除される。公開状態なら効果なし。'},
+  warp:{c:'#102818',ic:'↯',lb:'近道+2',desc:'隠密中なら+2マス追加移動。ただし移動先では交戦できない（交戦の影響は受ける）。公開状態では効果なし。'},
+  battle_remote:{c:'#301010',ic:'⚔',lb:'交戦（広域）',desc:'他の交戦マスにいる公開状態のSVとも戦闘できる。同マスなら隠密にも攻撃可。'},
+  sleep_h:{c:'#282010',ic:'💤',lb:'一回休み',desc:'隠密中にこのマスを踏むと次のターン行動不能。公開状態では効果なし。'},
+  battle:{c:'#301010',ic:'⚔',lb:'交戦',desc:'同マスの相手と戦闘できる。同マスなら隠密にも攻撃可。'},
+  safe:{c:'#202018',ic:'🛡',lb:'安置',desc:'戦闘が一切発生しない安全地帯。'},
+  reishi:{c:'#1a1030',ic:'◈',lb:'令呪回復',desc:'令呪を1画回復（最大3画）。隠密・公開どちらでも効果あり。'},
+};
+
+const CELL_POOL=['reveal','reveal','reveal','reveal','battle','battle','battle','battle','battle','battle_remote','sleep_h','sleep_h','sleep_h','sleep_h','warp','safe','reishi','normal'];
+const PHASES=['discard','action','master','cell','draw1','combat','draw2'];
+const PIDS=['ps-discard','ps-action','ps-master','ps-cell','ps-draw1','ps-combat','ps-draw2'];
+const CW=48,CH=62,CY=24;
+
+// ══════════════════════════════════════
+//  状態変数
+// ══════════════════════════════════════
+let myId=null,myNum=null,roomCode=null,isHost=false;
+let roomRef=null,playersRef=null,gameRef=null;
+let myData={name:'',cls:'',sv:'',flipped:false,masterImg:null,servantImg:null};
+let gameState=null; // Firebaseから同期
+let localHand=[]; // 自分の手札（ローカルのみ）
+let phase='discard',discCard=null,atkSelCards=[],defSelCards=[],pendingCombat=null,battleState=null;
+let cells=[],localDeck=[];
+let summonFlipped=false;
+
+// ── ユーティリティ ──
+function SS(id){document.querySelectorAll('.screen').forEach(s=>{s.style.display='none';s.classList.remove('active');});const el=document.getElementById('screen-'+id);el.style.display=(id==='title'||id==='create-join')?'flex':'block';el.classList.add('active');}
+function rnd(a){return a[Math.floor(Math.random()*a.length)];}
+function sh(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}}
+function mkbtn(label,cls,icon){const b=document.createElement('button');b.className=cls;b.innerHTML=`<i class="ti ${icon}"></i>${label}`;return b;}
+function addLog(msg,cls=''){const el=document.getElementById('log');if(!el)return;const d=document.createElement('div');if(cls)d.className=cls;d.textContent=msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
+function genRoomCode(){return Math.random().toString(36).substring(2,6).toUpperCase();}
+function hideOvs(){['ov-draw','ov-defeat','ov-cs'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('show');});}
+function getClasses(n){let c=[...BASIC];if(n>=8)c.push('ルーラー');if(n>=9)c.push('アヴェンジャー');if(n>=10)c=[...new Set([...c,...EX])];return c;}
+
+// ── 画面遷移ヘルパー ──
+function showCreateJoin(mode){
+  SS('create-join');
+  const title=document.getElementById('cj-title');
+  const body=document.getElementById('cj-body');
+  const btn=document.getElementById('cj-btn');
+  if(mode==='create'){
+    title.textContent='ルームを作成する';
+    body.innerHTML=`<label>参加人数</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="num-row"></div>`;
+    const nr=document.getElementById('num-row');
+    window._selNumP=2;
+    [2,3,4,5,6,7,8,9,10,11,12].forEach(n=>{
+      const b=document.createElement('button');b.textContent=n+'人';b.style.cssText='padding:6px 12px;font-size:12px';
+      if(n===window._selNumP)b.className='btn-gold';
+      b.onclick=()=>{
+        window._selNumP=n;
+        nr.querySelectorAll('button').forEach((x,i)=>{x.className=([2,3,4,5,6,7,8,9,10,11,12][i]===n)?'btn-gold':'';});
+      };
+      nr.appendChild(b);
+    });
+    btn.innerHTML='<i class="ti ti-plus"></i>ルームを作成する';
+    btn.onclick=()=>createRoom(window._selNumP);
+  } else {
+    title.textContent='ルームに参加する';
+    body.innerHTML=`<label>ルームコード（4文字）</label><input type="text" id="room-code-input" placeholder="ABCD" maxlength="4" style="text-transform:uppercase;text-align:center;font-size:24px;letter-spacing:.3em;margin-bottom:1rem">`;
+    btn.innerHTML='<i class="ti ti-door-enter"></i>参加する';
+    btn.onclick=()=>{const code=document.getElementById('room-code-input').value.toUpperCase();if(code.length===4)joinRoom(code);else alert('4文字のコードを入力してください');};
+  }
+}
+
+// ══════════════════════════════════════
+//  ルーム作成
+// ══════════════════════════════════════
+async function createRoom(numP){
+  try{
+    let code=genRoomCode();
+    let snap=await window._db.ref(`rooms/${code}`).once('value');
+    while(snap.exists()){code=genRoomCode();snap=await window._db.ref(`rooms/${code}`).once('value');}
+    roomCode=code;isHost=true;myId='p0';
+    const allCls=getClasses(numP);const pool=[...BASIC.slice(0,Math.min(numP,7))];
+    if(numP>=8)pool.push('ルーラー');if(numP>=9)pool.push('アヴェンジャー');
+    while(pool.length<numP)pool.push(rnd(allCls));sh(pool);
+    const myCls=pool[0];const mySv=rnd(SP[myCls]||[myCls]);
+    myData.cls=myCls;myData.sv=mySv;
+    const roomData={code,numP,hostId:'p0',status:'lobby',createdAt:Date.now(),svPool:pool};
+    await window._db.ref(`rooms/${code}`).set(roomData);
+    setupRoomListeners();
+    initPrepare();
+  }catch(e){alert('ルーム作成に失敗しました: '+e.message);console.error(e);}
+}
+
+// ══════════════════════════════════════
+//  ルーム参加
+// ══════════════════════════════════════
+async function joinRoom(code){
+  try{
+    const snap=await window._db.ref(`rooms/${code}`).once('value');
+    if(!snap.exists()){alert('ルームが見つかりません');return;}
+    const roomData=snap.val();
+    if(roomData.status!=='lobby'){alert('このルームはすでにゲームが開始されています');return;}
+    const playersSnap=await window._db.ref(`rooms/${code}/players`).once('value');
+    const existing=playersSnap.exists()?Object.keys(playersSnap.val()):[];
+    let num=0;while(existing.includes(`p${num}`))num++;
+    if(num>=roomData.numP){alert('ルームが満員です');return;}
+    myId=`p${num}`;roomCode=code;isHost=false;
+    const allCls=getClasses(roomData.numP);
+    const myCls=roomData.svPool?roomData.svPool[num]:rnd(allCls);
+    const mySv=rnd(SP[myCls]||[myCls]);
+    myData.cls=myCls;myData.sv=mySv;
+    setupRoomListeners();
+    initPrepare();
+  }catch(e){alert('参加に失敗しました: '+e.message);console.error(e);}
+}
+
+// ══════════════════════════════════════
+//  リスナー設定
+// ══════════════════════════════════════
+function setupRoomListeners(){
+  playersRef=window._db.ref(`rooms/${roomCode}/players`);
+  gameRef=window._db.ref(`rooms/${roomCode}/game`);
+  playersRef.on('value',(snap)=>{
+    const data=snap.val()||{};
+    updateLobbyUI(data);
+    if(gameState)updateGameUI();
+  });
+  gameRef.on('value',(snap)=>{
+    if(!snap.exists())return;
+    handleGameStateUpdate(snap.val());
+  });
+}
+
+// ══════════════════════════════════════
+//  準備画面
+// ══════════════════════════════════════
+function initPrepare(){
+  summonFlipped=false;
+  document.getElementById('sf-inner').classList.remove('flipped');
+  document.getElementById('summon-hint').textContent='カードをクリックして召喚';
+  document.getElementById('prep-ready-btn').disabled=true;
+  // ドロップゾーン初期化（次のフレームで要素が存在する状態にする）
+  setTimeout(()=>{
+    setupImgDropZone('master-upload-area','master');
+    setupImgDropZone('servant-upload-area','servant');
+  },50);
+
+  SS('prepare');
+}
+
+function doSummonFlip(){
+  if(summonFlipped)return;
+  summonFlipped=true;
+  document.getElementById('sf-inner').classList.add('flipped');
+  document.getElementById('sv-badge').textContent=myData.cls;
+  document.getElementById('sv-badge').style.cssText=`background:${CC[myData.cls]}22;color:${CC[myData.cls]};font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700`;
+  const ic=document.getElementById('sv-icon');ic.className=`ti ${CI[myData.cls]||'ti-star'}`;ic.style.color=CC[myData.cls]||'#c9a84c';
+  document.getElementById('sv-name').textContent=myData.sv;
+  document.getElementById('sv-cls').textContent=myData.cls;
+  document.getElementById('sv-trait').textContent=CT[myData.cls]||'';
+  document.getElementById('summon-hint').textContent='召喚完了！';
+  checkPrepReady();
+}
+
+function checkPrepReady(){
+  const name=document.getElementById('prep-name').value.trim();
+  const btn=document.getElementById('prep-ready-btn');
+  btn.disabled=!(name&&summonFlipped);
+}
+document.getElementById('prep-name').addEventListener('input',checkPrepReady);
+
+async function setReady(){
+  const name=document.getElementById('prep-name').value.trim();
+  myData.name=name;
+  const playerData={id:myId,name,cls:myData.cls,sv:myData.sv,ready:true,color:PLAYER_COLORS[parseInt(myId.slice(1))],masterImg:myData.masterImg||null,servantImg:myData.servantImg||null};
+  await window._db.ref(`rooms/${roomCode}/players/${myId}`).set(playerData);
+  SS('lobby');
+  document.getElementById('room-code-display').textContent=roomCode;
+}
+
+// ══════════════════════════════════════
+//  ロビーUI
+// ══════════════════════════════════════
+function updateLobbyUI(playersData){
+  const entries=Object.entries(playersData||{});
+  document.getElementById('lobby-count').textContent=entries.length;
+  const list=document.getElementById('lobby-player-list');list.innerHTML='';
+  entries.forEach(([pid,p],i)=>{
+    const d=document.createElement('div');d.className='player-item';
+    const isMe=pid===myId;const isH=isHost&&pid===myId;
+    d.innerHTML=`
+      <div class="num-badge" style="background:${p.color||'#534AB7'}22;color:${p.color||'#534AB7'};border:1px solid ${p.color||'#534AB7'}44">${i+1}</div>
+      <div class="player-name-lobby">${p.name||'準備中...'}</div>
+      <div class="player-status ${isH?'status-host':p.ready?'status-ready':'status-wait'}">${isH?'ホスト':p.ready?'準備OK':'待機中'}</div>`;
+    list.appendChild(d);
+  });
+  // ホストのアクション
+  const actions=document.getElementById('lobby-actions');actions.innerHTML='';
+  if(isHost){
+    const allReady=entries.length>=2&&entries.every(([,p])=>p.ready);
+    const startBtn=mkbtn('ゲームを開始する','btn-gold','ti-sword');
+    startBtn.style.cssText='width:100%;justify-content:center;padding:14px;font-size:14px;font-weight:700';
+    startBtn.disabled=!allReady;
+    startBtn.onclick=hostStartGame;
+    actions.appendChild(startBtn);
+    if(!allReady){
+      const hint=document.createElement('div');hint.style.cssText='font-size:11px;color:var(--text3);text-align:center;margin-top:8px';
+      hint.textContent='全員の準備が完了するとゲームを開始できます';
+      actions.appendChild(hint);
+    }
+  } else {
+    const w=document.createElement('div');w.className='waiting-banner';w.innerHTML='<i class="ti ti-hourglass"></i> ホストがゲームを開始するまでお待ちください';
+    actions.appendChild(w);
+  }
+}
+
+// ══════════════════════════════════════
+//  ゲーム開始（ホスト）
+// ══════════════════════════════════════
+async function hostStartGame(){
+  const playersSnap=await window._db.ref(`rooms/${roomCode}/players`).once('value');
+  const roomSnap=await window._db.ref(`rooms/${roomCode}`).once('value');
+  const playersData=playersSnap.val();
+  const roomData=roomSnap.val();
+  const numP=roomData.numP;
+
+  // 番号ランダム抽選
+  const nums=[...Array(numP).keys()];sh(nums);
+  const playerList=Object.entries(playersData).map(([pid,p],i)=>({
+    id:pid,name:p.name,cls:p.cls,sv:p.sv,color:p.color,
+    num:nums[i],spos:0,mpos:0,cs:3,hidden:true,skip:false,sdead:false,mdead:false,
+    revealed:false // SV名・クラスを一度でも公開したか
+  }));
+  // 番号でソート
+  playerList.sort((a,b)=>a.num-b.num);
+
+  // マス配置
+  const pool=[...CELL_POOL];sh(pool);
+  const cellArr=['start',...pool,'goal'];
+
+  // デッキ（ホストが管理）
+  let deck=[];
+  playerList.forEach(p=>{
+    const cs=CD[p.sv]||[{t:'B',p:3},{t:'A',p:3},{t:'Q',p:2},{t:'B',p:3},{t:'A',p:3}];
+    cs.forEach(c=>deck.push({...c,sv:p.sv,cls:p.cls,pid:p.id}));
+  });
+  sh(deck);
+
+  // 各プレイヤーに初期手札を配る（Firebaseに保存）
+  const hands={};
+  playerList.forEach(p=>{hands[p.id]=deck.splice(0,3);});
+
+  // ターン順もnumで決定（num=0が最初）
+  const turnOrder=playerList.map(p=>p.id);
+
+  const initState={
+    players:Object.fromEntries(playerList.map(p=>[p.id,p])),
+    cells:cellArr,
+    deck,
+    hands, // 各自の手札（本人のみアクセス）
+    turn:turnOrder[0],
+    turnOrder,
+    round:1,
+    phase:'discard',
+    log:[],
+    started:true,
+  };
+
+  await window._db.ref(`rooms/${roomCode}/game`).set(initState);
+  await window._db.ref(`rooms/${roomCode}`).update({status:'playing'});
+}
+
+// ══════════════════════════════════════
+//  ゲーム状態更新ハンドラ
+// ══════════════════════════════════════
+function handleGameStateUpdate(newState){
+  if(!newState||!newState.started)return;
+  const wasStarted=!!gameState;
+  gameState=newState;
+  cells=newState.cells||[];
+  // 自分の手札を取得
+  if(newState.hands&&newState.hands[myId])localHand=[...newState.hands[myId]];
+  if(!wasStarted){
+    // 初回起動
+    phase=newState.phase||'discard';
+    SS('game');
+    resizeBoard();setupBoardClick();
+    addLog('⚔ 聖杯戦争、開幕！全SVは隠密でスタート','le');
+  } else {
+    phase=newState.phase||'discard';
+  }
+  updateGameUI();
+  drawBoard();
+}
+
+// ══════════════════════════════════════
+//  ゲームUI更新
+// ══════════════════════════════════════
+function updateGameUI(){
+  if(!gameState)return;
+  const gs=gameState;
+  const players=Object.values(gs.players||{}).sort((a,b)=>a.num-b.num);
+  const curPlayer=gs.players[gs.turn];
+  const isMyTurn=gs.turn===myId;
+
+  // フェーズインジケーター
+  const pi=PHASES.indexOf(phase);
+  PIDS.forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.classList.remove('active','done');if(i<pi)el.classList.add('done');else if(i===pi)el.classList.add('active');});
+
+  // ヘッダー
+  if(curPlayer){
+    document.getElementById('g-turn-dot').style.background=curPlayer.color;
+    document.getElementById('g-turn-name').textContent=`${curPlayer.num+1}. ${curPlayer.name}`;
+    document.getElementById('g-turn-status').textContent=isMyTurn?'（あなたのターン）':'のターン';
+    document.getElementById('g-round').textContent=`ラウンド ${gs.round}`;
+  }
+
+  // プレイヤーリスト
+  const plist=document.getElementById('g-plist');plist.innerHTML='';
+  players.forEach(p=>{
+    const isMe=p.id===myId;
+    const showCls=p.revealed||isMe; // 一度公開されたか自分ならクラス表示
+    const dead=p.sdead&&p.mdead;
+    const div=document.createElement('div');div.className=`pp${dead?' dead':''}${p.id===gs.turn?' cur':''}`;
+    div.innerHTML=`
+      <div class="pp-top">
+        <div class="pp-num" style="background:${p.color}22;color:${p.color};border:1px solid ${p.color}44">${p.num+1}</div>
+        <div class="pp-name-text" style="color:${p.color}">${p.name}</div>
+        ${showCls?`<div class="pp-cls-badge" style="background:${CC[p.cls]||'#534AB7'}22;color:${CC[p.cls]||'#534AB7'}">${p.cls}</div>`:''}
+      </div>
+      <div class="pp-detail">令:${p.cs}${p.hidden?' 🌑':''}${p.sdead?' [SV消滅]':''}</div>`;
+    plist.appendChild(div);
+  });
+
+  // アクションパネル
+  renderActions(isMyTurn);
+}
+
+// ══════════════════════════════════════
+//  アクション描画
+// ══════════════════════════════════════
+function renderActions(isMyTurn){
+  const gs=gameState;if(!gs)return;
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  const hint=document.getElementById('act-hint');hint.textContent='';
+  document.getElementById('act-label').textContent='アクション';
+  hideOvs();
+
+  if(!isMyTurn){
+    document.getElementById('act-label').textContent='';
+    ar.innerHTML=`<div class="waiting-banner" style="width:100%"><i class="ti ti-hourglass"></i> ${gs.players[gs.turn]?.name||''}のターンを待っています...</div>`;
+    // 自分の手札は表示
+    renderMyHand(false,-1,[]);
+    return;
+  }
+
+  const p=gs.players[myId];if(!p)return;
+
+  if(phase==='discard'){
+    document.getElementById('act-label').textContent='① 手札から1枚捨ててください';
+    if(p.skip){
+      const b=mkbtn('ターンをスキップ（行動不能）','btn-gold act-btn','ti-player-skip-forward');
+      b.onclick=()=>doAction({type:'skip'});ar.appendChild(b);
+      renderMyHand(false,-1,[]);return;
+    }
+    let selIdx=-1;
+    renderMyHand(true,selIdx,[],idx=>{selIdx=idx;renderMyHandSel(idx,discardBtn);discardBtn.disabled=idx<0;});
+    const discardBtn=mkbtn('選択したカードを捨てる','btn-gold act-btn','ti-trash');
+    discardBtn.disabled=true;discardBtn.id='discard-btn';
+    discardBtn.onclick=()=>{if(selIdx>=0)doAction({type:'discard',cardIdx:selIdx});};
+    ar.appendChild(discardBtn);
+    hint.textContent='手札から1枚クリックして選択してください';
+
+  } else if(phase==='action'){
+    document.getElementById('act-label').textContent='② アクションを選んでください';
+    renderMyHand(false,-1,[]);
+    if(!p.sdead){
+      const mv=mkbtn('移動する','btn-gold act-btn','ti-walk');mv.onclick=()=>doAction({type:'move'});ar.appendChild(mv);
+      const hd=mkbtn(p.hidden?'公開状態に戻す':'隠密になる','act-btn','ti-eye-off');hd.onclick=()=>doAction({type:'hidden'});ar.appendChild(hd);
+    } else {
+      const b=mkbtn('手札補充へ','act-btn','ti-player-skip-forward');b.onclick=()=>doAction({type:'skip_to_draw'});ar.appendChild(b);
+    }
+    if(p.cs>0){const cs=mkbtn(`令呪（${p.cs}画）`,'btn-red act-btn','ti-bolt');cs.onclick=showCS;ar.appendChild(cs);}
+
+  } else if(phase==='master'){
+    document.getElementById('act-label').textContent='③ マスターの行動';
+    renderMyHand(false,-1,[]);
+    const y=mkbtn('SVに同行する','btn-gold act-btn','ti-walk');y.onclick=()=>doAction({type:'master_follow'});ar.appendChild(y);
+    const n=mkbtn('その場に留まる','act-btn','ti-home');n.onclick=()=>doAction({type:'master_stay'});ar.appendChild(n);
+
+  } else if(phase==='cell'){
+    document.getElementById('act-label').textContent='④ マスの効果';
+    renderMyHand(false,-1,[]);
+    renderCellFx();
+
+  } else if(phase==='draw1'){
+    renderMyHand(false,-1,[]);
+    doClientDraw1();
+
+  } else if(phase==='combat'){
+    document.getElementById('act-label').textContent='⑥ 戦闘フェーズ';
+    renderMyHand(false,-1,[]);
+    renderCombatActions();
+
+  } else if(phase==='atk_select'){
+    document.getElementById('act-label').textContent=`⚔ 攻撃するカードを3枚選んでください`;
+    renderMyHand(true,-1,atkSelCards,idx=>{
+      const i=atkSelCards.indexOf(idx);
+      if(i>=0)atkSelCards.splice(i,1);else if(atkSelCards.length<3)atkSelCards.push(idx);
+      renderActions(true);
+    });
+    const b=mkbtn('この3枚で攻撃する','btn-red act-btn','ti-sword');
+    b.disabled=atkSelCards.length!==3;
+    b.onclick=()=>doAction({type:'atk_confirm',cards:atkSelCards.map(i=>localHand[i])});
+    ar.appendChild(b);
+    hint.textContent=`${atkSelCards.length}/3枚選択中`;
+
+  } else if(phase==='def_select'){
+    document.getElementById('act-label').textContent=`🛡 防衛するカードを3枚選んでください`;
+    renderMyHand(true,-1,defSelCards,idx=>{
+      const i=defSelCards.indexOf(idx);
+      if(i>=0)defSelCards.splice(i,1);else if(defSelCards.length<3)defSelCards.push(idx);
+      renderActions(true);
+    });
+    const b=mkbtn('この3枚で防衛する','btn-green act-btn','ti-shield');
+    b.disabled=defSelCards.length!==3;
+    b.onclick=()=>doAction({type:'def_confirm',cards:defSelCards.map(i=>localHand[i])});
+    ar.appendChild(b);
+    hint.textContent=`${defSelCards.length}/3枚選択中`;
+
+  } else if(phase==='defeat_choice'){
+    renderMyHand(false,-1,[]);
+    renderDefeatChoice();
+  } else if(phase==='counter_choice'){
+    renderMyHand(false,-1,[]);
+    renderCounterChoice();
+  } else if(phase==='draw2'){
+    renderMyHand(false,-1,[]);
+    doClientFinalDraw();
+  }
+}
+
+// ── 手札描画 ──
+function renderMyHand(selectable,selIdx,selList,onToggle){
+  const hr=document.getElementById('hand-row');hr.innerHTML='';
+  document.getElementById('hand-sub').textContent=selectable?`（${selList.length}枚選択中）`:'';
+  if(!localHand.length){hr.innerHTML='<div style="font-size:11px;color:var(--text3);align-self:center">手札なし</div>';return;}
+  localHand.forEach((c,i)=>{
+    const isSel=selList.includes(i)||selIdx===i;
+    const order=selList.indexOf(i)+1;
+    const d=document.createElement('div');d.className=`hc${isSel?' sel-battle':''}`;
+    d.innerHTML=`${isSel&&order>0?`<div class="hc-num">${order}</div>`:''}
+      <div class="hc-t ${c.t}-c">${c.t}</div><div class="hc-p">${c.p}</div><div class="hc-s">${c.sv.slice(0,4)}</div>`;
+    if(selectable&&onToggle)d.onclick=()=>onToggle(i);
+    hr.appendChild(d);
+  });
+}
+
+function renderMyHandSel(selIdx,btn){
+  document.getElementById('hand-row').querySelectorAll('.hc').forEach((d,i)=>{
+    d.classList.toggle('sel',i===selIdx);
+  });
+  if(btn)btn.disabled=selIdx<0;
+}
+
+// ══════════════════════════════════════
+//  アクション実行（Firebase更新）
+// ══════════════════════════════════════
+async function doAction(action){
+  const gs=gameState;const p=gs.players[myId];
+  const updates={};
+
+  if(action.type==='skip'){
+    updates[`rooms/${roomCode}/game/players/${myId}/skip`]=false;
+    updates[`rooms/${roomCode}/game/phase`]='draw2';
+    addLog(`${p.name} は行動不能でスキップ`);
+
+  } else if(action.type==='discard'){
+    const card=localHand[action.cardIdx];
+    // 手札から除去
+    const newHand=[...localHand];newHand.splice(action.cardIdx,1);
+    discCard=card;
+    updates[`rooms/${roomCode}/game/hands/${myId}`]=newHand;
+    updates[`rooms/${roomCode}/game/discCard`]=card;
+    updates[`rooms/${roomCode}/game/phase`]='action';
+    localHand=newHand;
+    addLog(`${p.name} が ${card.t}（${card.p}）を捨てた`);
+
+  } else if(action.type==='move'){
+    const dc=gs.discCard||discCard;if(!dc)return;
+    let steps=dc.p;
+    if(!p.sdead&&p.cls==='ライダー'&&!p.hidden)steps+=2;
+    if(!p.sdead&&p.cls==='セイバー'&&!p.hidden)steps+=1;
+    const newPos=Math.min(p.spos+steps,gs.cells.length-1);
+    updates[`rooms/${roomCode}/game/players/${myId}/spos`]=newPos;
+    updates[`rooms/${roomCode}/game/phase`]='master';
+    addLog(`${p.name} のSVが ${steps}マス進む → ${newPos+1}マス目`);
+    if(newPos>=gs.cells.length-1){updates[`rooms/${roomCode}/game/winner`]=myId;}
+
+  } else if(action.type==='hidden'){
+    const nowHidden=!p.hidden;
+    updates[`rooms/${roomCode}/game/players/${myId}/hidden`]=nowHidden;
+    if(!nowHidden){
+      // 公開になった → revealed=true
+      updates[`rooms/${roomCode}/game/players/${myId}/revealed`]=true;
+    }
+    updates[`rooms/${roomCode}/game/phase`]='draw2';
+    addLog(`${p.name} が${nowHidden?'隠密になった':'公開状態に戻った'}`,nowHidden?'le':'');
+
+  } else if(action.type==='master_follow'){
+    updates[`rooms/${roomCode}/game/players/${myId}/mpos`]=p.spos;
+    updates[`rooms/${roomCode}/game/phase`]='cell';
+    addLog(`${p.name} のマスターが同行 → ${p.spos+1}マス目`);
+
+  } else if(action.type==='master_stay'){
+    updates[`rooms/${roomCode}/game/phase`]='cell';
+    addLog(`${p.name} のマスターは ${p.mpos+1}マス目に留まる`);
+
+  } else if(action.type==='cell_next'){
+    updates[`rooms/${roomCode}/game/phase`]='draw1';
+
+  } else if(action.type==='atk_confirm'){
+    updates[`rooms/${roomCode}/game/battleState/atkCards`]=action.cards;
+    updates[`rooms/${roomCode}/game/phase`]='def_select';
+    // 防衛側にドロー
+    const defId=gs.battleState?.defId;if(defId){
+      const defHand=gs.hands?.[defId]||[];
+      const newCard=drawFromDeck();
+      if(newCard){
+        const newDefHand=[...defHand,newCard];
+        updates[`rooms/${roomCode}/game/hands/${defId}`]=newDefHand;
+      }
+    }
+    addLog(`${p.name} が攻撃カードを選択した`);
+
+  } else if(action.type==='def_confirm'){
+    updates[`rooms/${roomCode}/game/battleState/defCards`]=action.cards;
+    // 戦闘解決はホストが行う
+    updates[`rooms/${roomCode}/game/phase`]='resolve_battle';
+    addLog(`${gs.players[gs.battleState?.defId]?.name||'防衛側'} が防衛カードを選択した`);
+
+  } else if(action.type==='skip_to_draw'){
+    updates[`rooms/${roomCode}/game/phase`]='draw2';
+  }
+
+  await window._db.ref('/').update(updates);
+}
+
+// ── デッキからカードを引く（ローカル） ──
+function drawFromDeck(){
+  if(!gameState?.deck?.length)return null;
+  return gameState.deck[0];// 実際はサーバー側で管理
+}
+
+// ── マス効果 ──
+function renderCellFx(){
+  const gs=gameState;const p=gs.players[myId];
+  const idx=p.spos;const cell=gs.cells[idx];const ci=CINFO[cell]||CINFO.normal;
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  let msg='';
+  if(cell==='reveal'){if(p.hidden){msg='隠密を強制解除！';doAction({type:'force_reveal'});}else msg='すでに公開状態（効果なし）';}
+  else if(cell==='warp'){if(p.hidden){msg='隠密中のため+2マス追加移動！';doAction({type:'warp'});}else msg='公開状態のためワープ不可';}
+  else if(cell==='sleep_h'){if(p.hidden){msg='隠密中のため一回休み！';}else msg='公開状態のため効果なし';}
+  else if(cell==='safe'){msg='安置マス — 戦闘は発生しない';}
+  else if(cell==='reishi'){if(p.cs<3){msg=`令呪+1（${p.cs+1}画）`;}else msg='令呪は満タン';}
+  else if(cell==='battle'||cell==='battle_remote'){msg=cell==='battle_remote'?'交戦マス（広域）':'交戦マス';}
+  else msg='効果なし';
+
+  const eff=document.createElement('div');
+  eff.style.cssText='background:var(--bg3);border-radius:var(--r);padding:8px 12px;margin-bottom:10px;font-size:12px;display:flex;align-items:center;gap:8px;border:1px solid var(--border2)';
+  eff.innerHTML=`<span style="font-size:16px">${ci.ic||'□'}</span><div><div style="font-weight:700">${ci.lb}</div><div style="color:var(--text2);font-size:11px">${msg}</div></div>`;
+  document.getElementById('ap-content').insertBefore(eff,document.getElementById('ap-content').firstChild);
+  const next=mkbtn('次へ（ドローへ）','btn-gold act-btn','ti-arrow-right');
+  next.onclick=()=>{eff.remove();doAction({type:'cell_next'});};
+  ar.appendChild(next);
+}
+
+// ── ドロー1枚 ──
+function doClientDraw1(){
+  // サーバーにドローを要求（実際の実装ではサーバーが処理）
+  addLog(`${gameState.players[myId]?.name} が1枚ドロー`);
+  doAction({type:'draw1_done'});
+}
+
+// ── 最終補充 ──
+function doClientFinalDraw(){
+  doAction({type:'final_draw_done'});
+}
+
+// ── 戦闘 ──
+function renderCombatActions(){
+  const gs=gameState;const p=gs.players[myId];
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  const tgts=getCombatTargets(p);
+  if(!tgts.length){
+    const b=mkbtn('戦闘なし — 手札補充へ','act-btn','ti-player-skip-forward');
+    b.onclick=()=>doAction({type:'skip_to_draw'});ar.appendChild(b);
+    document.getElementById('act-hint').textContent='攻撃可能な相手がいません';return;
+  }
+  tgts.forEach(t=>{
+    const b=mkbtn(`${t.num+1}. ${t.name}と戦闘する${t.hidden?' 🌑':''}（${t.spos+1}マス）`,'act-btn btn-red','ti-sword');
+    b.onclick=()=>{
+      doAction({type:'init_combat',defId:t.id});
+      atkSelCards=[];defSelCards=[];
+      phase='atk_select';renderActions(true);
+    };
+    ar.appendChild(b);
+  });
+  const skip=mkbtn('戦闘スキップ','act-btn','ti-player-skip-forward');
+  skip.onclick=()=>doAction({type:'skip_to_draw'});ar.appendChild(skip);
+}
+
+function getCombatTargets(p){
+  const gs=gameState;if(!gs)return[];
+  const onBattle=pos=>gs.cells[pos]==='battle'||gs.cells[pos]==='battle_remote';
+  return Object.values(gs.players||{}).filter(q=>{
+    if(q.id===p.id||(!q.sdead===false&&q.mdead))return false;
+    if(gs.cells[p.spos]==='safe')return false;
+    if(p.spos===0||q.spos===0)return false;
+    if(!p.sdead&&!q.sdead&&q.spos===p.spos)return true;
+    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden)return true;
+    return false;
+  });
+}
+
+function renderDefeatChoice(){
+  if(!pendingCombat)return;
+  const loser=gameState.players[pendingCombat.loserId];
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  document.getElementById('act-label').textContent=`${loser.name} の選択`;
+  if(loser.cs>0){
+    const y=mkbtn(`令呪1画消費して復帰（残り${loser.cs}画）`,'btn-green act-btn','ti-heart');
+    y.onclick=()=>doAction({type:'revive'});ar.appendChild(y);
+  }
+  const n=mkbtn('復帰しない（SVをロスト）','act-btn btn-red','ti-skull');
+  n.onclick=()=>doAction({type:'lost'});ar.appendChild(n);
+}
+
+function renderCounterChoice(){
+  if(!pendingCombat)return;
+  const defender=gameState.players[pendingCombat.winnerId];
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  document.getElementById('act-label').textContent=`${defender.name}（防衛側）の選択`;
+  if(defender.cs>0){
+    const y=mkbtn(`令呪1画で反撃（残り${defender.cs}画）`,'btn-red act-btn','ti-bolt');
+    y.onclick=()=>doAction({type:'counter'});ar.appendChild(y);
+  }
+  const n=mkbtn('反撃しない','act-btn','ti-shield');
+  n.onclick=()=>doAction({type:'no_counter'});ar.appendChild(n);
+}
+
+// ── 令呪 ──
+function showCS(){
+  const p=gameState?.players[myId];if(!p)return;
+  let html=`<div style="display:flex;flex-direction:column;gap:6px">
+    <button class="act-btn" style="text-align:left;justify-content:flex-start" onclick="useCS('retreat')"><i class="ti ti-corner-up-left"></i><div><div style="font-weight:700">撤退（1画）</div><div style="font-size:10px;color:var(--text2)">スタートへ戻る</div></div></button>`;
+  if(p.hidden)html+=`<button class="act-btn" style="text-align:left;justify-content:flex-start" onclick="useCS('ambush')"><i class="ti ti-bolt"></i><div><div style="font-weight:700">奇襲（1画）隠密限定</div><div style="font-size:10px;color:var(--text2)">距離無視で攻撃</div></div></button>`;
+  html+=`<button onclick="closeModal()">キャンセル</button></div>`;
+  showModal('令呪を使う',html,null,true);
+}
+function useCS(action){closeModal();doAction({type:'cs',action});}
+
+// ── エフェクト ──
+function showDrawFX(card,pname,cb){
+  hideOvs();const ov=document.getElementById('ov-draw');
+  document.getElementById('draw-lbl').textContent=`${pname} がドロー！`;
+  const t=document.getElementById('dc-t');t.textContent=card.t;t.className=`${card.t}-c`;t.style.cssText='font-size:14px;font-weight:700';
+  document.getElementById('dc-p').textContent=card.p;document.getElementById('dc-s').textContent=card.sv.slice(0,6);
+  document.getElementById('draw-sub').textContent=`${card.sv} / ${card.t} / パワー${card.p}`;
+  const a=document.getElementById('draw-card');a.style.animation='none';requestAnimationFrame(()=>{a.style.animation='';});
+  ov.classList.add('show');setTimeout(()=>{ov.classList.remove('show');cb&&cb();},1400);
+}
+function showDefeatFX(pname,svname,cb){
+  hideOvs();const ov=document.getElementById('ov-defeat');
+  document.getElementById('def-name-el').textContent=svname;document.getElementById('def-sub-el').textContent=`${pname} のサーヴァントが消滅した`;
+  const sc=document.getElementById('def-shards-el');sc.innerHTML='';
+  for(let i=0;i<12;i++){const s=document.createElement('div');s.className='shard';const a=Math.random()*Math.PI*2,d=60+Math.random()*80;s.style.cssText=`left:50%;top:50%;--tx:${Math.cos(a)*d}px;--ty:${Math.sin(a)*d}px;--tr:${Math.random()*360}deg;animation-delay:${Math.random()*.2}s;background:#E8C97A`;sc.appendChild(s);}
+  ov.classList.add('show');setTimeout(()=>{ov.classList.remove('show');cb&&cb();},1800);
+}
+function showCSFX(pname,action,remaining,cb){
+  hideOvs();const ov=document.getElementById('ov-cs');
+  document.getElementById('cs-title-el').textContent=`令呪発動 — ${action}`;
+  document.getElementById('cs-name-el').textContent=pname;
+  document.getElementById('cs-effect-el').textContent={撤退:'スタートへ戻る',反撃:'相手SVを撃破',奇襲:'距離無視で攻撃'}[action]||action;
+  const pip=document.getElementById('cs-pips');pip.innerHTML='';
+  for(let i=0;i<3;i++){const d=document.createElement('div');d.className='cs-pip'+(i>=remaining?' used':'');pip.appendChild(d);}
+  ov.classList.add('show');setTimeout(()=>{ov.classList.remove('show');cb&&cb();},2000);
+}
+
+// ── 戦闘画面 ──
+function calcBonus(cards,player,isAtk,label){
+  let total=0;const descs=[];
+  if(cards.every(c=>c.sv===cards[0].sv))return{total:9999,desc:'ブレイブチェイン — 即勝利',brave:true,type:'brave',label};
+  if(cards.every(c=>c.t===cards[0].t)){total+=3;descs.push(`${cards[0].t}チェイン +3`);return{total,desc:descs[0],brave:false,type:'color',t:cards[0].t,label};}
+  if(isAtk&&player.hidden){total+=2;descs.push('隠密 +2');}
+  if(!player.sdead){
+    if(player.cls==='セイバー'&&!player.hidden&&isAtk){total+=2;descs.push('最優 +2');}
+    if(player.cls==='ランサー'&&!player.hidden&&!isAtk){total+=3;descs.push('対魔力 +3');}
+    if(player.cls==='バーサーカー'&&isAtk){total+=4;descs.push('狂化 +4');}
+    if(player.cls==='バーサーカー'&&!isAtk){total-=2;descs.push('狂化 -2');}
+    if(player.cls==='アヴェンジャー'&&isAtk){total+=3;descs.push('忘却補正 +3');}
+    if(player.cls==='シールダー'&&!isAtk&&player.mpos===player.spos){total+=4;descs.push('自陣防御 +4');}
+  }
+  return{total,desc:descs.join(' / ')||'',brave:false,type:'none',label};
+}
+
+function openBattleScreen(atkId,defId,atkCards,defCards){
+  const gs=gameState;
+  const atk=gs.players[atkId],def=gs.players[defId];
+  const atkBns=calcBonus(atkCards,atk,true,`${atk.num+1}. ${atk.name}（攻撃側）`);
+  const defBns=calcBonus(defCards,def,false,`${def.num+1}. ${def.name}（防衛側）`);
+  const atkBase=atkCards.reduce((s,c)=>s+c.p,0);
+  const defBase=defCards.reduce((s,c)=>s+c.p,0);
+
+  document.getElementById('battle-vs').innerHTML=`
+    <div class="bf atk">
+      <div class="bf-ico" style="background:${atk.color}22"><i class="ti ${CI[atk.cls]||'ti-sword'}" style="font-size:22px;color:${atk.color}"></i><div class="bf-ring" style="border-color:${atk.color}"></div></div>
+      <div class="bf-name-battle" style="color:${atk.color}">${atk.num+1}. ${atk.name}</div>
+      <div class="bf-cls-battle">${atk.cls} · 攻撃側</div>
+      <div class="bf-tags"><div class="bf-tag">${atk.hidden?'🌑 隠密':'👁 公開'}</div><div class="bf-tag">令呪 ${atk.cs}</div></div>
+    </div>
+    <div class="vs-text">VS</div>
+    <div class="bf def">
+      <div class="bf-ico" style="background:${def.color}22"><i class="ti ${CI[def.cls]||'ti-shield'}" style="font-size:22px;color:${def.color}"></i><div class="bf-ring" style="border-color:${def.color}"></div></div>
+      <div class="bf-name-battle" style="color:${def.color}">${def.num+1}. ${def.name}</div>
+      <div class="bf-cls-battle">${def.cls} · 防衛側</div>
+      <div class="bf-tags"><div class="bf-tag">${def.hidden?'🌑 隠密':'👁 公開'}</div><div class="bf-tag">令呪 ${def.cs}</div></div>
+    </div>`;
+
+  document.getElementById('cmp-area').innerHTML=`
+    <div class="cmp-side"><div class="cmp-lbl">攻撃側のカード</div><div class="cmp-cards" id="cmp-atk"></div><div class="cmp-total" style="color:${atk.color}" id="cmp-atk-total">—</div><div class="cmp-bonus" id="cmp-atk-bonus"></div></div>
+    <div class="cmp-side"><div class="cmp-lbl">防衛側のカード</div><div class="cmp-cards" id="cmp-def"></div><div class="cmp-total" style="color:${def.color}" id="cmp-def-total">—</div><div class="cmp-bonus" id="cmp-def-bonus"></div></div>`;
+
+  document.getElementById('chain-banners').innerHTML='';
+  document.getElementById('result-ov').className='result-ov';
+  document.getElementById('battle-screen').classList.add('show');
+
+  atkCards.forEach((c,i)=>{setTimeout(()=>{const d=document.createElement('div');d.className=`cc2 ${c.t}`;d.style.animationDelay=`${i*.15}s`;d.innerHTML=`<div class="cc2-t">${c.t}</div><div class="cc2-p">${c.p}</div><div class="cc2-s">${c.sv.slice(0,3)}</div>`;document.getElementById('cmp-atk').appendChild(d);},i*160);});
+  defCards.forEach((c,i)=>{setTimeout(()=>{const d=document.createElement('div');d.className=`cc2 ${c.t}`;d.style.animationDelay=`${i*.15}s`;d.innerHTML=`<div class="cc2-t">${c.t}</div><div class="cc2-p">${c.p}</div><div class="cc2-s">${c.sv.slice(0,3)}</div>`;document.getElementById('cmp-def').appendChild(d);},i*160+100);});
+
+  setTimeout(()=>{
+    document.getElementById('cmp-atk-total').textContent=atkBns.brave?'∞':atkBase+atkBns.total;
+    document.getElementById('cmp-atk-bonus').textContent=atkBns.desc;
+    document.getElementById('cmp-def-total').textContent=defBns.brave?'∞':defBase+defBns.total;
+    document.getElementById('cmp-def-bonus').textContent=defBns.desc;
+    const cb=document.getElementById('chain-banners');
+    [atkBns,defBns].forEach(bns=>{
+      if(bns.type==='none')return;
+      const who=bns.label;
+      const color=bns.brave?'brave':`c${bns.t||'Q'}`;
+      const dotColor=bns.label.includes('攻撃')?(atk.color):(def.color);
+      const div=document.createElement('div');div.className=`chain-banner ${color}`;
+      div.innerHTML=`<div class="cb-dot" style="background:${dotColor}"></div><div class="cb-body"><div class="cb-who">${who}</div><div class="cb-chain">${bns.brave?'⚡ BRAVE CHAIN — 即勝利！':`✦ ${bns.t||''}${bns.t||''}${bns.t||''} COLOR CHAIN`}</div><div class="cb-bonus">${bns.desc}</div></div>`;
+      cb.appendChild(div);
+    });
+    battleState={atkId,defId,atkCards,defCards};
+  },700);
+}
+
+function showBattleResult(){
+  if(!battleState)return;
+  const gs=gameState;
+  const atk=gs.players[battleState.atkId],def=gs.players[battleState.defId];
+  const atkBns=calcBonus(battleState.atkCards,atk,true,'');
+  const defBns=calcBonus(battleState.defCards,def,false,'');
+  let at=atkBns.brave?9999:battleState.atkCards.reduce((s,c)=>s+c.p,0)+atkBns.total;
+  let dt=defBns.brave?9999:battleState.defCards.reduce((s,c)=>s+c.p,0)+defBns.total;
+  const win=at>dt,draw=at===dt;
+  const ro=document.getElementById('result-ov');
+  if(draw){
+    ro.className='result-ov draw show';document.getElementById('res-icon').textContent='⚡';document.getElementById('res-text').textContent='DRAW';document.getElementById('res-detail').textContent='相打ち — 両者そのまま';
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');doAction({type:'skip_to_draw'});};
+  } else if(win){
+    ro.className='result-ov win show';document.getElementById('res-icon').textContent='⚔';document.getElementById('res-text').textContent='VICTORY';document.getElementById('res-detail').textContent=`攻撃側（${atk.name}）の勝利！ ${Math.min(at,99)} vs ${Math.min(dt,99)}`;
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');pendingCombat={loserId:def.id,winnerId:atk.id};phase='defeat_choice';updateGameUI();};
+  } else {
+    ro.className='result-ov lose show';document.getElementById('res-icon').textContent='🛡';document.getElementById('res-text').textContent='DEFEAT';document.getElementById('res-detail').textContent=`防衛側（${def.name}）が防衛成功！攻撃側デメリットなし`;
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');pendingCombat={loserId:atk.id,winnerId:def.id,defWon:true};phase='counter_choice';updateGameUI();};
+  }
+  addLog(`${atk.name}[${Math.min(at,99)}] vs ${def.name}[${Math.min(dt,99)}] → ${win?'攻撃側勝利':draw?'相打ち':'防衛側勝利'}`,'lb');
+}
+
+// ── ボード描画 ──
+function resizeBoard(){
+  const cv=document.getElementById('board');if(!cv)return;
+  cv.width=20*CW+16;cv.height=CY+CH+32;cv.style.width=cv.width+'px';cv.style.maxWidth='100%';
+}
+
+function drawBoard(){
+  const cv=document.getElementById('board');if(!cv||!cells.length)return;
+  const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0d0814';ctx.fillRect(0,0,W,H);
+  const gs=gameState;const players=gs?Object.values(gs.players||{}):[]; 
+
+  cells.forEach((t,i)=>{
+    const x=8+i*CW;const ci=CINFO[t]||CINFO.normal;
+    ctx.fillStyle=ci.c;ctx.beginPath();ctx.roundRect(x,CY,CW-2,CH,4);ctx.fill();
+    ctx.strokeStyle='rgba(201,168,76,.15)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='rgba(232,224,240,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(i+1,x+CW/2-1,CY+10);
+    if(ci.ic){ctx.font='11px sans-serif';ctx.fillStyle='rgba(232,224,240,.8)';ctx.fillText(ci.ic,x+CW/2-1,CY+CH/2+5);}
+    if(ci.lb){ctx.font='6px sans-serif';ctx.fillStyle='rgba(201,168,76,.5)';ctx.fillText(ci.lb.slice(0,5),x+CW/2-1,CY+CH-4);}
+  });
+
+  ctx.fillStyle='rgba(201,168,76,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='left';ctx.fillText('START',10,16);
+  ctx.fillStyle='rgba(201,168,76,.7)';ctx.textAlign='right';ctx.fillText('GOAL',W-8,16);
+
+  // SV駒描画
+  const bySV={};
+  players.forEach(p=>{
+    if(p.sdead)return;
+    // 隠密中かつ自分でない場合は表示しない
+    if(p.hidden&&p.id!==myId)return;
+    if(!bySV[p.spos])bySV[p.spos]=[];bySV[p.spos].push(p);
+  });
+  Object.entries(bySV).forEach(([pos,ps])=>{
+    ps.forEach((p,i)=>{
+      const x=8+parseInt(pos)*CW;const cx=x+CW/2-1+(i-(ps.length-1)/2)*11;const cy=CY+CH+13;
+      ctx.beginPath();ctx.arc(cx,cy,7,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1.5;ctx.stroke();
+      if(!p.revealed){
+        // 未公開：番号表示
+        ctx.fillStyle='#fff';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText(p.num+1,cx,cy+3);
+      } else {
+        // 公開済み：クラスアイコン（文字で代替）
+        ctx.fillStyle='#fff';ctx.font='7px sans-serif';ctx.textAlign='center';ctx.fillText(p.cls.slice(0,2),cx,cy+3);
+      }
+      // 隠密マーク（自分のみ）
+      if(p.hidden&&p.id===myId){ctx.beginPath();ctx.arc(cx+5,cy-5,3,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.6)';ctx.fill();}
+    });
+  });
+
+  // マスター駒（SV消滅時のみ）
+  players.filter(p=>p.sdead&&!p.mdead).forEach((p,i)=>{
+    const x=8+p.mpos*CW;const cx=x+CW/2-1;const cy=CY+CH/2+4;
+    ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 5px sans-serif';ctx.textAlign='center';ctx.fillText('M',cx,cy+1.5);
+  });
+}
+
+function setupBoardClick(){
+  const cv=document.getElementById('board');if(!cv)return;
+  const tt=document.getElementById('cell-tt');
+  cv.addEventListener('click',(e)=>{
+    if(!cells.length)return;
+    const rect=cv.getBoundingClientRect();const mx=(e.clientX-rect.left)*(cv.width/rect.width);
+    const idx=Math.floor((mx-8)/CW);if(idx<0||idx>=cells.length){tt.classList.remove('show');return;}
+    const ci=CINFO[cells[idx]]||CINFO.normal;
+    document.getElementById('ct-title').innerHTML=`<span style="font-size:16px">${ci.ic||'□'}</span><span>${idx+1}マス目 — ${ci.lb}</span>`;
+    const here=gameState?Object.values(gameState.players||{}).filter(p=>!p.sdead&&p.spos===idx&&(!p.hidden||p.id===myId)):[];
+    let desc=ci.desc||'';if(here.length)desc+=`\n\nここにいる：${here.map(p=>`${p.num+1}.${p.name}`).join('、')}`;
+    document.getElementById('ct-desc').textContent=desc;
+    const bwRect=document.getElementById('board-wrap').getBoundingClientRect();
+    let left=(8+idx*CW)*(rect.width/cv.width);if(left+170>bwRect.width)left=bwRect.width-174;
+    tt.style.left=left+'px';tt.style.top=(CY+CH+28)*(rect.height/cv.height)+'px';
+    tt.classList.add('show');
+  });
+  document.addEventListener('click',(e)=>{if(!e.target.closest('#board-wrap'))tt.classList.remove('show');});
+}
+
+
+// ══════════════════════════════════════
+//  画像アップロード・ドロップ
+// ══════════════════════════════════════
+function setupImgDropZone(areaId,type){
+  const area=document.getElementById(areaId);
+  if(!area)return;
+  area.addEventListener('dragenter',e=>{e.preventDefault();area.classList.add('drag-over');});
+  area.addEventListener('dragover',e=>{e.preventDefault();area.classList.add('drag-over');});
+  area.addEventListener('dragleave',e=>{area.classList.remove('drag-over');});
+  area.addEventListener('drop',e=>{
+    e.preventDefault();area.classList.remove('drag-over');
+    const file=e.dataTransfer.files[0];
+    if(file&&file.type.startsWith('image/'))loadImgFile(file,type);
+    else alert('画像ファイルをドロップしてください');
+  });
+}
+
+function loadImgFile(file,type){
+  if(file.size>5*1024*1024){alert('画像は5MB以下にしてください');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{applyImgData(e.target.result,type);};
+  reader.readAsDataURL(file);
+}
+
+function applyImgData(dataUrl,type){
+  const areaId=type==='master'?'master-upload-area':'servant-upload-area';
+  const fileId=type==='master'?'file-master-prep':'file-servant-prep';
+  if(type==='master')myData.masterImg=dataUrl;
+  else myData.servantImg=dataUrl;
+  const area=document.getElementById(areaId);
+  if(!area)return;
+  area.innerHTML=`<img src="${dataUrl}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;border-radius:6px"><div class="img-overlay"><i class="ti ti-upload" style="font-size:20px;color:rgba(255,255,255,.8)"></i><span style="font-size:11px;color:rgba(255,255,255,.7)">画像を変更</span></div>`;
+  area.onclick=()=>document.getElementById(fileId).click();
+  setupImgDropZone(areaId,type);
+}
+
+function applyPrepImg(input,type){
+  const file=input.files[0];if(!file)return;
+  loadImgFile(file,type);
+}
+
+// ── モーダル ──
+function showModal(t,b,btns,raw=false){
+  document.getElementById('mt').textContent=t;
+  if(raw)document.getElementById('mb').innerHTML=b;
+  else{const d=document.createElement('div');d.className='modal-body';d.textContent=b;document.getElementById('mb').innerHTML='';document.getElementById('mb').appendChild(d);}
+  const mb=document.getElementById('mbtns');mb.innerHTML='';
+  if(btns)btns.forEach(({l,fn})=>{const btn=document.createElement('button');btn.className='btn-gold';btn.textContent=l;btn.onclick=()=>{closeModal();fn();};mb.appendChild(btn);});
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){document.getElementById('modal').classList.remove('show');}
+
+
+
+// ── クラスSVG ──
+function getClsSvg(cls,color){
+  const c=color||'#c9a84c';
+  const icons={
+    セイバー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><polygon points="32,8 34.5,30 32,34 29.5,30" fill="${c}"/><rect x="22" y="30" width="20" height="3.5" rx="1.5" fill="${c}"/><rect x="30.5" y="33.5" width="3" height="10" rx="1.5" fill="${c}" opacity=".7"/><circle cx="32" cy="45" r="3" fill="${c}"/>`,
+    アーチャー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M44,10 Q32,20 32,32 Q32,44 44,54" fill="none" stroke="${c}" stroke-width="3" stroke-linecap="round"/><line x1="44" y1="10" x2="20" y2="32" stroke="${c}" stroke-width="1.2"/><line x1="44" y1="54" x2="20" y2="32" stroke="${c}" stroke-width="1.2"/><line x1="8" y1="32" x2="44" y2="32" stroke="${c}" stroke-width="2.2" stroke-linecap="round"/><polygon points="6,32 14,28 14,36" fill="${c}"/><path d="M20,32 L24,26 L22,32 L24,38 Z" fill="${c}"/>`,
+    ランサー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><line x1="14" y1="56" x2="50" y2="10" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><polygon points="50,10 44,16 48,20 54,14" fill="${c}"/><circle cx="32" cy="33" r="5" fill="none" stroke="${c}" stroke-width="1.8"/><circle cx="32" cy="33" r="2" fill="${c}"/>`,
+    ライダー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><circle cx="32" cy="36" r="10" fill="none" stroke="${c}" stroke-width="2.2"/><circle cx="32" cy="36" r="3.5" fill="${c}"/><line x1="32" y1="26" x2="32" y2="46" stroke="${c}" stroke-width="1.5"/><line x1="22" y1="36" x2="42" y2="36" stroke="${c}" stroke-width="1.5"/><line x1="25" y1="29" x2="39" y2="43" stroke="${c}" stroke-width="1.5"/><line x1="39" y1="29" x2="25" y2="43" stroke="${c}" stroke-width="1.5"/><path d="M22,36 Q16,28 12,20 Q18,26 20,30 Q14,24 18,16 Q22,24 22,30" fill="${c}" opacity=".85"/><path d="M42,36 Q48,28 52,20 Q46,26 44,30 Q50,24 46,16 Q42,24 42,30" fill="${c}" opacity=".85"/>`,
+    キャスター:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><polygon points="32,10 49,20 49,44 32,54 15,44 15,20" fill="none" stroke="${c}" stroke-width="1.2" opacity=".5"/><line x1="32" y1="14" x2="32" y2="54" stroke="${c}" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="16" r="6" fill="rgba(0,0,0,.5)" stroke="${c}" stroke-width="2"/><circle cx="32" cy="16" r="3" fill="${c}"/><ellipse cx="32" cy="34" rx="12" ry="4" fill="none" stroke="${c}" stroke-width="1.2" opacity=".7" transform="rotate(-20,32,34)"/><ellipse cx="32" cy="34" rx="12" ry="4" fill="none" stroke="${c}" stroke-width="1.2" opacity=".5" transform="rotate(20,32,34)"/>`,
+    アサシン:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M18,34 Q18,16 32,14 Q46,16 46,34 L44,40 L20,40 Z" fill="${c}"/><rect x="21" y="40" width="22" height="8" rx="2" fill="${c}"/><rect x="25" y="40" width="2.5" height="6" rx="1" fill="rgba(0,0,0,.5)"/><rect x="30.5" y="40" width="2.5" height="6" rx="1" fill="rgba(0,0,0,.5)"/><rect x="36" y="40" width="2.5" height="6" rx="1" fill="rgba(0,0,0,.5)"/><ellipse cx="26" cy="31" rx="4" ry="4.5" fill="rgba(0,0,0,.6)"/><ellipse cx="38" cy="31" rx="4" ry="4.5" fill="rgba(0,0,0,.6)"/>`,
+    バーサーカー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M20,24 Q10,14 12,8 Q16,16 22,22 Z" fill="${c}"/><path d="M44,24 Q54,14 52,8 Q48,16 42,22 Z" fill="${c}"/><ellipse cx="32" cy="36" rx="18" ry="16" fill="${c}"/><ellipse cx="14" cy="30" rx="5" ry="7" fill="${c}"/><ellipse cx="50" cy="30" rx="5" ry="7" fill="${c}"/><ellipse cx="32" cy="42" rx="10" ry="7" fill="rgba(0,0,0,.4)"/><ellipse cx="28" cy="43" rx="2.5" ry="2" fill="rgba(0,0,0,.7)"/><ellipse cx="36" cy="43" rx="2.5" ry="2" fill="rgba(0,0,0,.7)"/><path d="M26,46 Q32,50 38,46" fill="none" stroke="${c}" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="24" cy="30" rx="4" ry="3.5" fill="rgba(0,0,0,.6)"/><ellipse cx="40" cy="30" rx="4" ry="3.5" fill="rgba(0,0,0,.6)"/>`,
+    シールダー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M32,10 L52,18 L52,38 Q52,54 32,58 Q12,54 12,38 L12,18 Z" fill="${c}"/><path d="M32,14 L48,21 L48,38 Q48,51 32,54 Q16,51 16,38 L16,21 Z" fill="rgba(0,0,0,.5)"/><rect x="29.5" y="20" width="5" height="26" rx="2" fill="${c}"/><rect x="20" y="32" width="24" height="5" rx="2" fill="${c}"/>`,
+    ルーラー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M26,14 L28,8 L32,12 L36,8 L38,14 Z" fill="${c}"/><rect x="30.5" y="12" width="3" height="38" rx="1.5" fill="${c}"/><rect x="14" y="24" width="36" height="3" rx="1.5" fill="${c}"/><line x1="16" y1="27" x2="16" y2="38" stroke="${c}" stroke-width="1.5" stroke-dasharray="2,2"/><line x1="48" y1="27" x2="48" y2="36" stroke="${c}" stroke-width="1.5" stroke-dasharray="2,2"/><path d="M10,38 Q16,42 22,38" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/><path d="M42,36 Q48,40 54,36" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round"/><rect x="24" y="50" width="16" height="4" rx="2" fill="${c}"/>`,
+    アヴェンジャー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M14,56 Q18,46 26,40 Q20,38 22,30 Q28,36 24,44 Q30,36 28,26 Q34,32 30,42 Q36,32 36,22 Q40,30 36,42 Q42,32 42,22 Q46,30 44,42 Q50,34 48,24 Q52,34 48,46 Q52,42 54,36 Q54,46 48,54 Q40,60 28,60 Q20,60 14,56 Z" fill="${c}"/><path d="M20,54 Q22,46 28,42 Q24,40 26,32 Q30,38 28,44 Q32,36 32,28 Q36,32 34,44 Q38,34 40,28 Q42,34 40,44 Q44,40 46,36 Q46,44 42,50 Q36,56 28,56 Q24,54 20,50 Z" fill="rgba(0,0,0,.4)"/>`,
+  };
+  return icons[cls]||icons['セイバー'];
+}
+
+// ── 初期化 ──
+SS('title');
+</script>
+</body>
+</html>
