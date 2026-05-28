@@ -144,8 +144,10 @@ label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;letter-s
 .g-turn-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
 .g-turn-name{font-size:13px;font-weight:700;margin-left:8px}
 .g-turn-status{font-size:11px;color:var(--text2);margin-left:4px}
-.g-main{display:grid;grid-template-columns:150px 1fr;gap:8px;margin-bottom:8px}
-.plist-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px;overflow-y:auto;max-height:340px}
+.g-main{display:grid;grid-template-columns:120px 1fr 320px 280px;gap:8px;margin-bottom:8px;align-items:stretch;height:320px}
+
+.g-right{display:contents}
+.plist-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px;overflow-y:auto}
 .plist-label{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border2)}
 .pp{padding:5px 0;border-bottom:1px solid var(--border2)}
 .pp:last-child{border-bottom:none}
@@ -156,13 +158,20 @@ label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;letter-s
 .pp-name-text{font-size:12px;font-weight:500;flex:1}
 .pp-cls-badge{font-size:8px;padding:1px 4px;border-radius:8px}
 .pp-detail{font-size:10px;color:var(--text3);padding-left:23px;line-height:1.8}
-.action-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:12px;position:relative;overflow:hidden;min-height:200px}
+.action-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px;position:relative;overflow-y:auto}
 
 /* 手札 */
-.hand-area{margin-bottom:12px}
+
+/* 画像エリア独立 */
+.img-panel{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:6px 4px;display:flex;flex-direction:row;gap:4px;align-items:center;justify-content:center;overflow:hidden}
+.hand-img-wrap{text-align:center;flex:1}
+.hand-img-wrap img{width:100%;height:290px;object-fit:cover;object-position:top;border-radius:6px;border:1px solid var(--border2);display:block}
+.hand-img-wrap .hand-img-ph{width:100%;height:290px;border-radius:6px;border:1px dashed var(--border2);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--text3);background:var(--bg3)}
+.hand-img-lbl{font-size:10px;color:var(--text3);margin-top:4px;text-align:center}
+.hand-area{margin-bottom:6px}
 .hand-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px}
-.hand-row{display:flex;gap:5px;flex-wrap:wrap;min-height:72px;align-items:flex-end}
-.hc{width:52px;height:70px;border-radius:6px;border:1.5px solid var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.03);transition:all .15s;padding:3px;position:relative}
+.hand-row{display:flex;gap:6px;flex-wrap:wrap;min-height:106px;align-items:flex-end}
+.hc{width:76px;height:106px;border-radius:8px;border:1.5px solid var(--border2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.03);transition:all .15s;padding:4px;position:relative}
 .hc:hover{border-color:var(--border);transform:translateY(-3px)}
 .hc.sel{border-color:var(--gold);background:rgba(201,168,76,.1);transform:translateY(-5px);border-width:2px}
 .hc.sel-battle{border-color:#70e0a0;background:rgba(15,110,86,.1);transform:translateY(-5px);border-width:2px}
@@ -198,16 +207,16 @@ label{font-size:11px;color:var(--text2);display:block;margin-bottom:4px;letter-s
 .cs-pip.used{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.2)}
 
 /* ボード */
-#board-wrap{margin-bottom:8px;overflow-x:auto;position:relative}
+#board-wrap{margin-bottom:8px;display:flex;gap:6px;align-items:flex-start}
 canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2);cursor:pointer}
-.cell-tt{position:absolute;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:12px;pointer-events:none;z-index:10;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none}
-.cell-tt.show{display:block}
+.cell-tt{position:static;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;font-size:12px;pointer-events:none;z-index:10;min-width:160px;box-shadow:0 4px 16px rgba(0,0,0,.4);display:none}
+.cell-tt{display:block!important}
 .board-hint{font-size:10px;color:var(--text3);margin-bottom:4px}
 
 /* ログ */
-.log-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:10px}
-.log-lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:6px}
-#log{font-size:11px;max-height:80px;overflow-y:auto;color:var(--text2);line-height:1.9}
+.log-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:6px 10px}
+.log-lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;margin-bottom:3px}
+#log{font-size:11px;height:48px;overflow-y:auto;color:var(--text2);line-height:1.7}
 .le{color:#a090ff;font-weight:700}.lb{color:#ff9090;font-weight:700}.lw{color:#70e0a0;font-weight:700}
 
 /* ── 戦闘画面 ── */
@@ -291,6 +300,20 @@ canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2
 /* 番号バッジ */
 .num-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:700;flex-shrink:0}
 
+
+/* フェーズ詳細パネル */
+.phase-detail-panel{background:linear-gradient(135deg,rgba(201,168,76,.06),rgba(83,74,183,.06));border:1px solid rgba(201,168,76,.25);border-radius:var(--r);padding:8px;overflow-y:auto}
+.pd-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.05em;margin-bottom:7px;padding-bottom:5px;border-bottom:1px solid rgba(201,168,76,.25)}
+.pd-section{margin-bottom:7px}
+.pd-section-title{font-size:11px;font-weight:700;color:var(--gold2);margin-bottom:4px;border-bottom:1px solid var(--border2);padding-bottom:2px}
+.pd-section-title .pd-num{width:16px;height:16px;border-radius:50%;background:rgba(201,168,76,.2);color:var(--gold);font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pd-text{font-size:11px;color:var(--text2);line-height:1.7}
+.pd-badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:8px;margin:1px 2px}
+.pd-badge.good{background:rgba(15,110,86,.2);color:#70e0a0;border:1px solid rgba(15,110,86,.3)}
+.pd-badge.bad{background:rgba(163,45,45,.2);color:#ff9090;border:1px solid rgba(163,45,45,.3)}
+.pd-badge.neutral{background:rgba(201,168,76,.15);color:var(--gold2);border:1px solid var(--border)}
+.pd-divider{height:1px;background:var(--border2);margin:8px 0}
+.pd-highlight{background:rgba(201,168,76,.1);border-radius:4px;padding:6px 8px;margin-top:4px;font-size:11px;color:var(--text);line-height:1.7;border-left:3px solid var(--gold)}
 /* ターン外プレイヤー待機 */
 .waiting-banner{background:rgba(201,168,76,.08);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;text-align:center;font-size:12px;color:var(--gold2)}
 </style>
@@ -311,6 +334,9 @@ canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2
     </button>
 
   </div>
+  <button class="title-btn" onclick="showDemoSetup()" style="margin-top:4px;opacity:.7">
+    <i class="ti ti-device-gamepad"></i>一人でデモプレイ（ローカル）
+  </button>
   <div class="discord-notice">
     <i class="ti ti-brand-discord" style="font-size:16px;color:rgb(88,101,242)"></i>
     <span>通話はDiscordを使いながら遊ぶことを推奨します</span>
@@ -479,12 +505,26 @@ canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2
         <div class="act-hint" id="act-hint"></div>
       </div>
     </div>
+    <div class="img-panel" id="img-panel">
+      <div class="hand-img-wrap">
+        <div class="hand-img-ph" id="master-img-ph"><i class="ti ti-user"></i></div>
+        <div class="hand-img-lbl" id="master-img-lbl">マスター</div>
+      </div>
+      <div class="hand-img-wrap">
+        <div class="hand-img-ph" id="servant-img-ph"><i class="ti ti-sword"></i></div>
+        <div class="hand-img-lbl" id="servant-img-lbl">SV</div>
+      </div>
+    </div>
+    <div class="phase-detail-panel" id="phase-detail">
+      <div class="pd-title">フェーズ詳細</div>
+      <div id="pd-content"></div>
+    </div>
   </div>
   <div class="board-hint">マスをクリックすると効果の詳細を確認できます</div>
   <div id="board-wrap">
-    <canvas id="board"></canvas>
-    <div class="cell-tt" id="cell-tt">
-      <div id="ct-title" style="font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px"></div>
+    <div style="overflow-x:auto;flex-shrink:0"><canvas id="board"></canvas></div>
+    <div class="cell-tt" id="cell-tt" style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:8px;min-height:80px">
+      <div id="ct-title" style="font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:6px">← マスをクリック</div>
       <div id="ct-desc" style="font-size:11px;color:var(--text2);line-height:1.7"></div>
     </div>
   </div>
@@ -498,7 +538,7 @@ canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2
     <div class="chain-banners" id="chain-banners"></div>
     <div class="cmp-area" id="cmp-area"></div>
     <div style="text-align:center;margin-top:1rem">
-      <button class="btn-gold" id="battle-result-btn" onclick="showBattleResult()">⚡ 結果を見る</button>
+      <button class="btn-gold" id="battle-result-btn">⚡ 結果を見る</button>
     </div>
   </div>
   <div class="result-ov" id="result-ov">
@@ -527,20 +567,20 @@ canvas#board{display:block;border-radius:var(--r);border:1px solid var(--border2
 const PLAYER_COLORS=['#E05540','#3A9EE0','#E0B030','#30C080','#C040C0','#E07030','#50C0C0','#8060E0','#C0C030','#E04080','#60A050','#80A0E0'];
 const CC={セイバー:'#534AB7',アーチャー:'#185FA5',ランサー:'#D85A30',ライダー:'#0F6E56',キャスター:'#7b3fa0',アサシン:'#3B6D11',バーサーカー:'#A32D2D',シールダー:'#185FA5',ルーラー:'#854F0B',アヴェンジャー:'#993556'};
 const CI={セイバー:'ti-sword',アーチャー:'ti-bow',ランサー:'ti-arrow-narrow-up',ライダー:'ti-horse',キャスター:'ti-wand',アサシン:'ti-eye-off',バーサーカー:'ti-flame',シールダー:'ti-shield',ルーラー:'ti-scale',アヴェンジャー:'ti-bolt'};
-const CT={セイバー:'最優 — 戦闘+2・移動+1',アーチャー:'単独行動 — 前方の公開SV全員に攻撃可',ランサー:'対魔力 — 防衛時+3',ライダー:'騎乗 — 移動+2',キャスター:'陣地作成 — マスターへの直接攻撃を1度無効化',アサシン:'気配遮断 — 戦闘後に自動で隠密に戻る',バーサーカー:'狂化 — 攻撃+4・防衛-2',シールダー:'自陣防御 — マスターと同行時、防衛+4',ルーラー:'真名看破 — 相手の隠密を強制解除',アヴェンジャー:'忘却補正 — 攻撃+3'};
+const CT={セイバー:'最優 — 戦闘+2・移動+1',アーチャー:'単独行動 — 前方の公開SV全員に攻撃可',ランサー:'対魔力 — 防衛時+3',ライダー:'騎乗 — 移動+2',キャスター:'陣地作成 — マスターへの直接攻撃を1度無効化',アサシン:'気配遮断 — 戦闘後に自動で隠密に戻る',バーサーカー:'狂化 — 攻撃+4・防衛-2',シールダー:'自陣防御 — マスターと同行時、防衛+4',ルーラー:'真名看破 — 相手の強制実体化',アヴェンジャー:'忘却補正 — 攻撃+3'};
 const BASIC=['セイバー','アーチャー','ランサー','ライダー','キャスター','アサシン','バーサーカー'];
 const EX=['シールダー','ルーラー','アヴェンジャー'];
-const SP={セイバー:['アルトリア','ジル剣','ネロ','アーサー','ネロブライド','カエサル','沖田','リリィ'],アーチャー:['ギルガメッシュ','エウリュアレ','アルジュナ','アーラシュ','メフィスト','信長','アルテラサンタ','イシュタル','エレナ水着'],ランサー:['スカサハ','カルナ','弁慶','頼光','エレシュキガル','エルキドゥ','ジャンヌオルタリリィ','メドゥーサ槍'],ライダー:['メイヴ','オジマンディアス','牛若丸','アルトリア騎オルタ','サンタオルタ','ギル騎','ケツァル','イシュタル水着'],キャスター:['マーリン','ジル術','ニトクリス','マリー','モーツァルト','パラケルスス','ナーサリー','ギル術'],アサシン:['山の翁','ステンノ','クレオパトラ','マルタ殺','ジキル','以蔵'],バーサーカー:['クーオルタ','アステリオス','茶々','土方','ダレイオス','バニヤン'],シールダー:['マシュ'],ルーラー:['ジャンヌ','マルタ裁'],アヴェンジャー:['ジャンヌオルタ','アンリマユ']};
+const SP={セイバー:['アルトリア','ジル剣','ネロ','アーサー','ネロブライド','カエサル','沖田','リリィ'],アーチャー:['ギルガメッシュ','エウリュアレ','アルジュナ','アーラシュ','信長','アルテラサンタ','イシュタル','エレナ水着'],ランサー:['スカサハ','カルナ','弁慶','頼光','エレシュキガル','エルキドゥ','ジャンヌオルタリリィ','メドゥーサ槍'],ライダー:['メイヴ','オジマンディアス','牛若丸','アルトリア騎オルタ','サンタオルタ','ギル騎','ケツァル','イシュタル水着'],キャスター:['マーリン','ジル術','ニトクリス','マリー','メフィスト','モーツァルト','パラケルスス','ナーサリー','ギル術'],アサシン:['山の翁','ステンノ','クレオパトラ','マルタ殺','ジキル','以蔵'],バーサーカー:['クーオルタ','アステリオス','茶々','土方','ダレイオス','バニヤン'],シールダー:['マシュ'],ルーラー:['ジャンヌ','マルタ裁'],アヴェンジャー:['ジャンヌオルタ','アンリマユ']};
 const CD={'アルトリア':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:4}],'ギルガメッシュ':[{t:'Q',p:5},{t:'A',p:4},{t:'A',p:2},{t:'B',p:5},{t:'B',p:2}],'スカサハ':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:2},{t:'A',p:4},{t:'B',p:3}],'メイヴ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'マーリン':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'山の翁':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'クーオルタ':[{t:'Q',p:2},{t:'A',p:4},{t:'A',p:6},{t:'B',p:4},{t:'B',p:2}],'マシュ':[{t:'Q',p:2},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3},{t:'B',p:3}],'ジャンヌ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4}],'カルナ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:5},{t:'B',p:3}],'エウリュアレ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ジル術':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:2},{t:'B',p:3}],'アステリオス':[{t:'B',p:1},{t:'B',p:2},{t:'B',p:5},{t:'A',p:4},{t:'Q',p:2}],'ジャンヌオルタ':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:5},{t:'B',p:4}],'アルジュナ':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4}],'ステンノ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:4},{t:'B',p:3}],'メドゥーサ槍':[{t:'Q',p:4},{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ジル剣':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'オジマンディアス':[{t:'Q',p:5},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'ニトクリス':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:2},{t:'B',p:4}],'ネロ':[{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'牛若丸':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'弁慶':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'アンリマユ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:2},{t:'B',p:3}],'アーサー':[{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:5},{t:'B',p:3}],'クレオパトラ':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'ネロブライド':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'カエサル':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'アーラシュ':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:2},{t:'A',p:3},{t:'B',p:3}],'エレナ水着':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'パラケルスス':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'メフィスト':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:2}],'イシュタル水着':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3},{t:'B',p:3}],'アルトリア騎オルタ':[{t:'Q',p:5},{t:'Q',p:4},{t:'A',p:3},{t:'A',p:3},{t:'B',p:3}],'頼光':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:3},{t:'B',p:4},{t:'B',p:2}],'マリー':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:2},{t:'B',p:4}],'ジキル':[{t:'Q',p:3},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:4},{t:'B',p:3}],'モーツァルト':[{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'A',p:2},{t:'B',p:3}],'沖田':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:3},{t:'B',p:3}],'信長':[{t:'Q',p:2},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'茶々':[{t:'B',p:3},{t:'B',p:3},{t:'B',p:3},{t:'A',p:4},{t:'Q',p:4}],'土方':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:4},{t:'B',p:2}],'以蔵':[{t:'Q',p:5},{t:'Q',p:3},{t:'A',p:3},{t:'A',p:3},{t:'B',p:2}],'バニヤン':[{t:'B',p:3},{t:'B',p:3},{t:'B',p:2},{t:'A',p:4},{t:'Q',p:2}],'サンタオルタ':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'ジャンヌオルタリリィ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'B',p:3},{t:'B',p:3}],'アルテラサンタ':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:3}],'ナーサリー':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'A',p:4},{t:'B',p:2}],'ダレイオス':[{t:'B',p:4},{t:'B',p:2},{t:'B',p:2},{t:'A',p:5},{t:'Q',p:3}],'ギル術':[{t:'Q',p:3},{t:'A',p:5},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'エルキドゥ':[{t:'Q',p:5},{t:'Q',p:4},{t:'Q',p:1},{t:'A',p:5},{t:'B',p:3}],'イシュタル':[{t:'Q',p:3},{t:'A',p:5},{t:'A',p:4},{t:'B',p:4},{t:'B',p:2}],'エレシュキガル':[{t:'Q',p:4},{t:'Q',p:3},{t:'A',p:6},{t:'B',p:4},{t:'B',p:1}],'ケツァル':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3}],'マルタ裁':[{t:'Q',p:4},{t:'A',p:4},{t:'B',p:4},{t:'B',p:3},{t:'B',p:2}],'リリィ':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}],'マルタ殺':[{t:'Q',p:4},{t:'A',p:4},{t:'A',p:4},{t:'A',p:3},{t:'B',p:2}],'ギル騎':[{t:'Q',p:3},{t:'A',p:4},{t:'A',p:3},{t:'B',p:4},{t:'B',p:3}]};
 
 const CINFO={
   start:{c:'#2a2820',ic:'▶',lb:'START',desc:'スタートマス。安全地帯で戦闘は発生しない。'},
   goal:{c:'#2a2010',ic:'★',lb:'GOAL',desc:'ゴール！最初に到達したプレイヤーの勝利。'},
   normal:{c:'#1a1820',ic:'',lb:'通常',desc:'効果なし。'},
-  reveal:{c:'#102030',ic:'👁',lb:'隠密解除',desc:'隠密状態が強制解除される。公開状態なら効果なし。'},
-  warp:{c:'#102818',ic:'↯',lb:'近道+2',desc:'隠密中なら+2マス追加移動。ただし移動先では交戦できない（交戦の影響は受ける）。公開状態では効果なし。'},
+  reveal:{c:'#102030',ic:'👁',lb:'実体化',desc:'霊体化状態が強制解除される。公開状態なら効果なし。'},
+  warp:{c:'#102818',ic:'↯',lb:'近道+2',desc:'霊体化中なら+2マス追加移動。ただし移動先では交戦できない（交戦の影響は受ける）。公開状態では効果なし。'},
   battle_remote:{c:'#301010',ic:'⚔',lb:'交戦（広域）',desc:'他の交戦マスにいる公開状態のSVとも戦闘できる。同マスなら隠密にも攻撃可。'},
-  sleep_h:{c:'#282010',ic:'💤',lb:'一回休み',desc:'隠密中にこのマスを踏むと次のターン行動不能。公開状態では効果なし。'},
+  sleep_h:{c:'#282010',ic:'💤',lb:'一回休み',desc:'霊体化中にこのマスを踏むと次のターン行動不能。公開状態では効果なし。'},
   battle:{c:'#301010',ic:'⚔',lb:'交戦',desc:'同マスの相手と戦闘できる。同マスなら隠密にも攻撃可。'},
   safe:{c:'#202018',ic:'🛡',lb:'安置',desc:'戦闘が一切発生しない安全地帯。'},
   reishi:{c:'#1a1030',ic:'◈',lb:'令呪回復',desc:'令呪を1画回復（最大3画）。隠密・公開どちらでも効果あり。'},
@@ -549,7 +589,7 @@ const CINFO={
 const CELL_POOL=['reveal','reveal','reveal','reveal','battle','battle','battle','battle','battle','battle_remote','sleep_h','sleep_h','sleep_h','sleep_h','warp','safe','reishi','normal'];
 const PHASES=['discard','action','master','cell','draw1','combat','draw2'];
 const PIDS=['ps-discard','ps-action','ps-master','ps-cell','ps-draw1','ps-combat','ps-draw2'];
-const CW=48,CH=62,CY=24;
+const CW=70,CH=90,CY=32;
 
 // ══════════════════════════════════════
 //  状態変数
@@ -581,9 +621,27 @@ function showCreateJoin(mode){
   const btn=document.getElementById('cj-btn');
   if(mode==='create'){
     title.textContent='ルームを作成する';
-    body.innerHTML=`<label>参加人数</label><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="num-row"></div>`;
-    const nr=document.getElementById('num-row');
+    body.innerHTML=`
+      <label>参加人数</label>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="num-row"></div>
+      <label style="margin-top:8px">召喚方式</label>
+      <div style="display:flex;gap:6px;margin-bottom:1rem">
+        <button id="sm-random" class="btn-gold" style="font-size:12px;padding:6px 14px">ランダム召喚</button>
+        <button id="sm-manual" style="font-size:12px;padding:6px 14px">手動選択</button>
+      </div>`;
     window._selNumP=2;
+    window._summonMode='random';
+    document.getElementById('sm-random').onclick=()=>{
+      window._summonMode='random';
+      document.getElementById('sm-random').className='btn-gold';
+      document.getElementById('sm-manual').className='';
+    };
+    document.getElementById('sm-manual').onclick=()=>{
+      window._summonMode='manual';
+      document.getElementById('sm-manual').className='btn-gold';
+      document.getElementById('sm-random').className='';
+    };
+    const nr=document.getElementById('num-row');
     [2,3,4,5,6,7,8,9,10,11,12].forEach(n=>{
       const b=document.createElement('button');b.textContent=n+'人';b.style.cssText='padding:6px 12px;font-size:12px';
       if(n===window._selNumP)b.className='btn-gold';
@@ -594,7 +652,7 @@ function showCreateJoin(mode){
       nr.appendChild(b);
     });
     btn.innerHTML='<i class="ti ti-plus"></i>ルームを作成する';
-    btn.onclick=()=>createRoom(window._selNumP);
+    btn.onclick=()=>createRoom(window._selNumP,window._summonMode);
   } else {
     title.textContent='ルームに参加する';
     body.innerHTML=`<label>ルームコード（4文字）</label><input type="text" id="room-code-input" placeholder="ABCD" maxlength="4" style="text-transform:uppercase;text-align:center;font-size:24px;letter-spacing:.3em;margin-bottom:1rem">`;
@@ -606,19 +664,28 @@ function showCreateJoin(mode){
 // ══════════════════════════════════════
 //  ルーム作成
 // ══════════════════════════════════════
-async function createRoom(numP){
+async function createRoom(numP,summonMode){
+  // summonModeはwindow._summonModeから取得（引数がなければ）
+  if(!summonMode)summonMode=window._summonMode||'random';
   try{
     let code=genRoomCode();
     let snap=await window._db.ref(`rooms/${code}`).once('value');
     while(snap.exists()){code=genRoomCode();snap=await window._db.ref(`rooms/${code}`).once('value');}
     roomCode=code;isHost=true;myId='p0';
-    const allCls=getClasses(numP);const pool=[...BASIC.slice(0,Math.min(numP,7))];
-    if(numP>=8)pool.push('ルーラー');if(numP>=9)pool.push('アヴェンジャー');
-    while(pool.length<numP)pool.push(rnd(allCls));sh(pool);
-    const myCls=pool[0];const mySv=rnd(SP[myCls]||[myCls]);
-    myData.cls=myCls;myData.sv=mySv;
-    const roomData={code,numP,hostId:'p0',status:'lobby',createdAt:Date.now(),svPool:pool};
+    let pool=null;
+    if(summonMode==='random'){
+      const allCls=getClasses(numP);
+      pool=[...BASIC.slice(0,Math.min(numP,7))];
+      if(numP>=8)pool.push('ルーラー');if(numP>=9)pool.push('アヴェンジャー');
+      while(pool.length<numP)pool.push(rnd(allCls));sh(pool);
+      myData.cls=pool[0];myData.sv=rnd(SP[pool[0]]||[pool[0]]);
+    } else {
+      // 手動：クラス/SV未設定のまま準備画面へ
+      myData.cls=null;myData.sv=null;
+    }
+    const roomData={code,numP,hostId:'p0',status:'lobby',createdAt:Date.now(),svPool:pool,summonMode};
     await window._db.ref(`rooms/${code}`).set(roomData);
+    roomDataCache=roomData;
     setupRoomListeners();
     initPrepare();
   }catch(e){alert('ルーム作成に失敗しました: '+e.message);console.error(e);}
@@ -638,10 +705,14 @@ async function joinRoom(code){
     let num=0;while(existing.includes(`p${num}`))num++;
     if(num>=roomData.numP){alert('ルームが満員です');return;}
     myId=`p${num}`;roomCode=code;isHost=false;
-    const allCls=getClasses(roomData.numP);
-    const myCls=roomData.svPool?roomData.svPool[num]:rnd(allCls);
-    const mySv=rnd(SP[myCls]||[myCls]);
-    myData.cls=myCls;myData.sv=mySv;
+    roomDataCache=roomData;
+    if(roomData.summonMode==='manual'){
+      myData.cls=null;myData.sv=null;
+    } else {
+      const allCls=getClasses(roomData.numP);
+      const myCls=roomData.svPool?roomData.svPool[num]:rnd(allCls);
+      myData.cls=myCls;myData.sv=rnd(SP[myCls]||[myCls]);
+    }
     setupRoomListeners();
     initPrepare();
   }catch(e){alert('参加に失敗しました: '+e.message);console.error(e);}
@@ -650,9 +721,12 @@ async function joinRoom(code){
 // ══════════════════════════════════════
 //  リスナー設定
 // ══════════════════════════════════════
+let roomDataCache={};
 function setupRoomListeners(){
   playersRef=window._db.ref(`rooms/${roomCode}/players`);
   gameRef=window._db.ref(`rooms/${roomCode}/game`);
+  // roomデータ本体をキャッシュ
+  window._db.ref(`rooms/${roomCode}`).once('value').then(s=>{roomDataCache=s.val()||{};});
   playersRef.on('value',(snap)=>{
     const data=snap.val()||{};
     updateLobbyUI(data);
@@ -672,13 +746,65 @@ function initPrepare(){
   document.getElementById('sf-inner').classList.remove('flipped');
   document.getElementById('summon-hint').textContent='カードをクリックして召喚';
   document.getElementById('prep-ready-btn').disabled=true;
-  // ドロップゾーン初期化（次のフレームで要素が存在する状態にする）
+  // 手動召喚モードの場合はクラス/SV選択UIを挿入
+  const isManual=(roomDataCache.summonMode==='manual');
+  const selArea=document.getElementById('manual-sel-area');
+  if(selArea)selArea.remove();
+  if(isManual){
+    const avail=[...BASIC,...EX]; // 手動召喚は全クラス選択可
+    // まだクラス未設定なら先頭を仮設定
+    if(!myData.cls)myData.cls=avail[0];
+    if(!myData.sv)myData.sv=(SP[myData.cls]||[])[0]||myData.cls;
+    const div=document.createElement('div');
+    div.id='manual-sel-area';
+    div.style.cssText='margin-bottom:12px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-radius:var(--r);padding:12px';
+    div.innerHTML=`
+      <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:8px">クラスを選ぶ</div>
+      <div id="cls-pill-row" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px"></div>
+      <div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:6px">サーヴァントを選ぶ</div>
+      <select id="sv-select" style="width:100%;padding:6px 8px;font-size:12px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--r)"></select>`;
+    // カードの手前に挿入
+    const cardWrap=document.getElementById('summon-flip-wrap');
+    cardWrap.parentElement.insertBefore(div,cardWrap);
+    renderClsPills(avail);
+    // SV選択
+    document.getElementById('sv-select').addEventListener('change',e=>{
+      myData.sv=e.target.value;
+      if(summonFlipped)doSummonFlip();
+    });
+  }
+  // ドロップゾーン初期化
   setTimeout(()=>{
     setupImgDropZone('master-upload-area','master');
     setupImgDropZone('servant-upload-area','servant');
   },50);
-
   SS('prepare');
+}
+
+function renderClsPills(avail){
+  const row=document.getElementById('cls-pill-row');if(!row)return;
+  row.innerHTML='';
+  avail.forEach(cls=>{
+    const b=document.createElement('button');
+    b.textContent=cls;
+    b.style.cssText=`font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid ${myData.cls===cls?CC[cls]:'var(--border2)'};background:${myData.cls===cls?CC[cls]+'22':'transparent'};color:${myData.cls===cls?CC[cls]:'var(--text2)'}`;
+    b.onclick=()=>{
+      myData.cls=cls;
+      myData.sv=(SP[cls]||[])[0]||cls;
+      renderClsPills(avail);
+      renderSvSelect();
+      if(summonFlipped){summonFlipped=false;document.getElementById('sf-inner').classList.remove('flipped');document.getElementById('summon-hint').textContent='カードをクリックして再召喚';}
+    };
+    row.appendChild(b);
+  });
+  renderSvSelect();
+}
+
+function renderSvSelect(){
+  const sel=document.getElementById('sv-select');if(!sel)return;
+  const svList=SP[myData.cls]||[myData.cls];
+  sel.innerHTML=svList.map(s=>`<option${s===myData.sv?' selected':''}>${s}</option>`).join('');
+  sel.onchange=e=>{myData.sv=e.target.value;};
 }
 
 function doSummonFlip(){
@@ -698,7 +824,9 @@ function doSummonFlip(){
 function checkPrepReady(){
   const name=document.getElementById('prep-name').value.trim();
   const btn=document.getElementById('prep-ready-btn');
-  btn.disabled=!(name&&summonFlipped);
+  const isManual=roomDataCache.summonMode==='manual';
+  const clsOk=!isManual||(myData.cls&&myData.sv);
+  btn.disabled=!(name&&summonFlipped&&clsOk);
 }
 document.getElementById('prep-name').addEventListener('input',checkPrepReady);
 
@@ -818,7 +946,7 @@ function handleGameStateUpdate(newState){
     phase=newState.phase||'discard';
     SS('game');
     resizeBoard();setupBoardClick();
-    addLog('⚔ 聖杯戦争、開幕！全SVは隠密でスタート','le');
+    addLog('⚔ 聖杯戦争、開幕！全SVは霊体化でスタート','le');
   } else {
     phase=newState.phase||'discard';
   }
@@ -861,7 +989,7 @@ function updateGameUI(){
         <div class="pp-name-text" style="color:${p.color}">${p.name}</div>
         ${showCls?`<div class="pp-cls-badge" style="background:${CC[p.cls]||'#534AB7'}22;color:${CC[p.cls]||'#534AB7'}">${p.cls}</div>`:''}
       </div>
-      <div class="pp-detail">令:${p.cs}${p.hidden?' 🌑':''}${p.sdead?' [SV消滅]':''}</div>`;
+      <div class="pp-detail">令:${p.cs}${p.hidden?' 🌑霊体化':''}${p.sdead?' [SV消滅]':''}</div>`;
     plist.appendChild(div);
   });
 
@@ -878,6 +1006,7 @@ function renderActions(isMyTurn){
   const hint=document.getElementById('act-hint');hint.textContent='';
   document.getElementById('act-label').textContent='アクション';
   hideOvs();
+  updatePhaseDetail(phase);
 
   if(!isMyTurn){
     document.getElementById('act-label').textContent='';
@@ -891,6 +1020,18 @@ function renderActions(isMyTurn){
 
   if(phase==='discard'){
     document.getElementById('act-label').textContent='① 手札から1枚捨ててください';
+    // アサシン特性：公開状態なら行動消費なしで霊体化可能
+    if(p.cls==='アサシン'&&!p.hidden&&!p.sdead){
+      const ab=mkbtn('気配遮断：行動消費なしで霊体化','btn-gold act-btn','ti-eye-off');
+      ab.style.cssText='margin-bottom:8px;font-size:11px';
+      ab.onclick=()=>{
+        doAction({type:'hidden'});
+        addLog(`${p.name}（アサシン）気配遮断で霊体化！`,'le');
+      };
+      ar.appendChild(ab);
+      const sep=document.createElement('div');sep.style.cssText='width:100%;height:1px;background:var(--border2);margin-bottom:8px';
+      ar.appendChild(sep);
+    }
     if(p.skip){
       const b=mkbtn('ターンをスキップ（行動不能）','btn-gold act-btn','ti-player-skip-forward');
       b.onclick=()=>doAction({type:'skip'});ar.appendChild(b);
@@ -908,8 +1049,10 @@ function renderActions(isMyTurn){
     document.getElementById('act-label').textContent='② アクションを選んでください';
     renderMyHand(false,-1,[]);
     if(!p.sdead){
-      const mv=mkbtn('移動する','btn-gold act-btn','ti-walk');mv.onclick=()=>doAction({type:'move'});ar.appendChild(mv);
-      const hd=mkbtn(p.hidden?'公開状態に戻す':'隠密になる','act-btn','ti-eye-off');hd.onclick=()=>doAction({type:'hidden'});ar.appendChild(hd);
+      const mv=mkbtn('移動する','btn-gold act-btn','ti-walk');
+      mv.onclick=()=>{mv.disabled=true;ar.querySelectorAll('button').forEach(b=>b.disabled=true);doAction({type:'move'});};
+      ar.appendChild(mv);
+      const hd=mkbtn(p.hidden?'公開状態に戻す':'霊体化する','act-btn','ti-eye-off');hd.onclick=()=>doAction({type:'hidden'});ar.appendChild(hd);
     } else {
       const b=mkbtn('手札補充へ','act-btn','ti-player-skip-forward');b.onclick=()=>doAction({type:'skip_to_draw'});ar.appendChild(b);
     }
@@ -974,6 +1117,27 @@ function renderActions(isMyTurn){
 }
 
 // ── 手札描画 ──
+
+function renderHandImgs(){
+  const gs=gameState;if(!gs)return;
+  const me=gs.players[myId];if(!me)return;
+  // マスター画像
+  const mph=document.getElementById('master-img-ph');
+  const mlb=document.getElementById('master-img-lbl');
+  if(mph){
+    if(me.masterImg){mph.outerHTML=`<img src="${me.masterImg}" style="width:90px;height:126px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--border2)">`;} 
+    else mph.innerHTML=`<i class="ti ti-user"></i>`;
+  }
+  if(mlb)mlb.textContent=me.name||'マスター';
+  // SV画像
+  const sph=document.getElementById('servant-img-ph');
+  const slb=document.getElementById('servant-img-lbl');
+  if(sph){
+    if(me.servantImg){sph.outerHTML=`<img src="${me.servantImg}" style="width:90px;height:126px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--border2)">`;} 
+    else sph.innerHTML=`<i class="ti ti-sword"></i>`;
+  }
+  if(slb)slb.textContent=me.sv||me.cls||'SV';
+}
 function renderMyHand(selectable,selIdx,selList,onToggle){
   const hr=document.getElementById('hand-row');hr.innerHTML='';
   document.getElementById('hand-sub').textContent=selectable?`（${selList.length}枚選択中）`:'';
@@ -1038,7 +1202,7 @@ async function doAction(action){
       updates[`rooms/${roomCode}/game/players/${myId}/revealed`]=true;
     }
     updates[`rooms/${roomCode}/game/phase`]='draw2';
-    addLog(`${p.name} が${nowHidden?'隠密になった':'公開状態に戻った'}`,nowHidden?'le':'');
+    addLog(`${p.name} が${nowHidden?'霊体化した':'公開状態に戻った'}`,nowHidden?'le':'');
 
   } else if(action.type==='master_follow'){
     updates[`rooms/${roomCode}/game/players/${myId}/mpos`]=p.spos;
@@ -1068,10 +1232,39 @@ async function doAction(action){
 
   } else if(action.type==='def_confirm'){
     updates[`rooms/${roomCode}/game/battleState/defCards`]=action.cards;
-    // 戦闘解決はホストが行う
-    updates[`rooms/${roomCode}/game/phase`]='resolve_battle';
     addLog(`${gs.players[gs.battleState?.defId]?.name||'防衛側'} が防衛カードを選択した`);
+    // Firebase更新後に戦闘解決
+    await multiUpdate(updates);
+    battleState={...gs.battleState,defCards:action.cards};
+    openBattleScreen(
+      gs.battleState.atkId,
+      gs.battleState.defId,
+      gs.battleState.atkCards,
+      action.cards
+    );
+    // battle-result-btnに結果処理を紐付け
+    setTimeout(()=>{
+      const btn=document.getElementById('battle-result-btn');
+      if(btn)btn.onclick=showBattleResult;
+    },100);
+    return;
 
+  } else if(action.type==='draw1_done'){
+    // 手札にカードを追加してデッキから削除
+    if(action.card){
+      const newHand=[...localHand,action.card];
+      const newDeck=(gs.deck||[]).slice(1);
+      updates[`rooms/${roomCode}/game/hands/${myId}`]=newHand;
+      updates[`rooms/${roomCode}/game/deck`]=newDeck;
+      localHand=newHand;
+    }
+    updates[`rooms/${roomCode}/game/phase`]='combat';
+  } else if(action.type==='assassin_stealth'){
+    // アサシン：行動消費なしで霊体化
+    updates[`rooms/${roomCode}/game/players/${myId}/hidden`]=true;
+    updates[`rooms/${roomCode}/game/players/${myId}/revealed`]=true; // 一度公開されていたのでrevealed維持
+    // phaseはdiscardのまま（手札を捨てるフェーズへ進む）
+    addLog(`${p.name}（アサシン）が行動消費なしで霊体化！`,'le');
   } else if(action.type==='skip_to_draw'){
     updates[`rooms/${roomCode}/game/phase`]='draw2';
   }
@@ -1091,9 +1284,9 @@ function renderCellFx(){
   const idx=p.spos;const cell=gs.cells[idx];const ci=CINFO[cell]||CINFO.normal;
   const ar=document.getElementById('act-row');ar.innerHTML='';
   let msg='';
-  if(cell==='reveal'){if(p.hidden){msg='隠密を強制解除！';doAction({type:'force_reveal'});}else msg='すでに公開状態（効果なし）';}
-  else if(cell==='warp'){if(p.hidden){msg='隠密中のため+2マス追加移動！';doAction({type:'warp'});}else msg='公開状態のためワープ不可';}
-  else if(cell==='sleep_h'){if(p.hidden){msg='隠密中のため一回休み！';}else msg='公開状態のため効果なし';}
+  if(cell==='reveal'){if(p.hidden){msg='強制実体化！';doAction({type:'force_reveal'});}else msg='すでに公開状態（効果なし）';}
+  else if(cell==='warp'){if(p.hidden){msg='霊体化中のため+2マス追加移動！';doAction({type:'warp'});}else msg='公開状態のためワープ不可';}
+  else if(cell==='sleep_h'){if(p.hidden){msg='霊体化中のため一回休み！';}else msg='公開状態のため効果なし';}
   else if(cell==='safe'){msg='安置マス — 戦闘は発生しない';}
   else if(cell==='reishi'){if(p.cs<3){msg=`令呪+1（${p.cs+1}画）`;}else msg='令呪は満タン';}
   else if(cell==='battle'||cell==='battle_remote'){msg=cell==='battle_remote'?'交戦マス（広域）':'交戦マス';}
@@ -1110,9 +1303,18 @@ function renderCellFx(){
 
 // ── ドロー1枚 ──
 function doClientDraw1(){
-  // サーバーにドローを要求（実際の実装ではサーバーが処理）
-  addLog(`${gameState.players[myId]?.name} が1枚ドロー`);
-  doAction({type:'draw1_done'});
+  const gs=gameState;const p=gs.players[myId];
+  // デッキからカードを引く
+  const deck=gs.deck||[];
+  if(deck.length===0){
+    // デッキ切れの場合もフェーズを進める
+    addLog(`${p?.name} がドロー（デッキ切れ）`);
+    doAction({type:'draw1_done',card:null});
+    return;
+  }
+  const card=deck[0];
+  addLog(`${p?.name} が1枚ドロー`);
+  doAction({type:'draw1_done',card});
 }
 
 // ── 最終補充 ──
@@ -1147,7 +1349,7 @@ function getCombatTargets(p){
   const gs=gameState;if(!gs)return[];
   const onBattle=pos=>gs.cells[pos]==='battle'||gs.cells[pos]==='battle_remote';
   return Object.values(gs.players||{}).filter(q=>{
-    if(q.id===p.id||(!q.sdead===false&&q.mdead))return false;
+    if(q.id===p.id||(q.sdead&&q.mdead))return false;
     if(gs.cells[p.spos]==='safe')return false;
     if(p.spos===0||q.spos===0)return false;
     if(!p.sdead&&!q.sdead&&q.spos===p.spos)return true;
@@ -1187,7 +1389,7 @@ function showCS(){
   const p=gameState?.players[myId];if(!p)return;
   let html=`<div style="display:flex;flex-direction:column;gap:6px">
     <button class="act-btn" style="text-align:left;justify-content:flex-start" onclick="useCS('retreat')"><i class="ti ti-corner-up-left"></i><div><div style="font-weight:700">撤退（1画）</div><div style="font-size:10px;color:var(--text2)">スタートへ戻る</div></div></button>`;
-  if(p.hidden)html+=`<button class="act-btn" style="text-align:left;justify-content:flex-start" onclick="useCS('ambush')"><i class="ti ti-bolt"></i><div><div style="font-weight:700">奇襲（1画）隠密限定</div><div style="font-size:10px;color:var(--text2)">距離無視で攻撃</div></div></button>`;
+  if(p.hidden)html+=`<button class="act-btn" style="text-align:left;justify-content:flex-start" onclick="useCS('ambush')"><i class="ti ti-bolt"></i><div><div style="font-weight:700">奇襲（1画）霊体化限定</div><div style="font-size:10px;color:var(--text2)">距離無視で攻撃</div></div></button>`;
   html+=`<button onclick="closeModal()">キャンセル</button></div>`;
   showModal('令呪を使う',html,null,true);
 }
@@ -1225,7 +1427,7 @@ function calcBonus(cards,player,isAtk,label){
   let total=0;const descs=[];
   if(cards.every(c=>c.sv===cards[0].sv))return{total:9999,desc:'ブレイブチェイン — 即勝利',brave:true,type:'brave',label};
   if(cards.every(c=>c.t===cards[0].t)){total+=3;descs.push(`${cards[0].t}チェイン +3`);return{total,desc:descs[0],brave:false,type:'color',t:cards[0].t,label};}
-  if(isAtk&&player.hidden){total+=2;descs.push('隠密 +2');}
+  if(isAtk&&player.hidden){total+=2;descs.push('霊体化 +2');}
   if(!player.sdead){
     if(player.cls==='セイバー'&&!player.hidden&&isAtk){total+=2;descs.push('最優 +2');}
     if(player.cls==='ランサー'&&!player.hidden&&!isAtk){total+=3;descs.push('対魔力 +3');}
@@ -1238,8 +1440,11 @@ function calcBonus(cards,player,isAtk,label){
 }
 
 function openBattleScreen(atkId,defId,atkCards,defCards){
-  const gs=gameState;
-  const atk=gs.players[atkId],def=gs.players[defId];
+  const players=demoMode
+    ?Object.fromEntries(demoPlayers.map(p=>[p.id,p]))
+    :(gameState?.players||{});
+  const atk=players[atkId],def=players[defId];
+  if(!atk||!def)return;
   const atkBns=calcBonus(atkCards,atk,true,`${atk.num+1}. ${atk.name}（攻撃側）`);
   const defBns=calcBonus(defCards,def,false,`${def.num+1}. ${def.name}（防衛側）`);
   const atkBase=atkCards.reduce((s,c)=>s+c.p,0);
@@ -1250,14 +1455,14 @@ function openBattleScreen(atkId,defId,atkCards,defCards){
       <div class="bf-ico" style="background:${atk.color}22"><i class="ti ${CI[atk.cls]||'ti-sword'}" style="font-size:22px;color:${atk.color}"></i><div class="bf-ring" style="border-color:${atk.color}"></div></div>
       <div class="bf-name-battle" style="color:${atk.color}">${atk.num+1}. ${atk.name}</div>
       <div class="bf-cls-battle">${atk.cls} · 攻撃側</div>
-      <div class="bf-tags"><div class="bf-tag">${atk.hidden?'🌑 隠密':'👁 公開'}</div><div class="bf-tag">令呪 ${atk.cs}</div></div>
+      <div class="bf-tags"><div class="bf-tag">${atk.hidden?'🌑 霊体化':'👁 公開'}</div><div class="bf-tag">令呪 ${atk.cs}</div></div>
     </div>
     <div class="vs-text">VS</div>
     <div class="bf def">
       <div class="bf-ico" style="background:${def.color}22"><i class="ti ${CI[def.cls]||'ti-shield'}" style="font-size:22px;color:${def.color}"></i><div class="bf-ring" style="border-color:${def.color}"></div></div>
       <div class="bf-name-battle" style="color:${def.color}">${def.num+1}. ${def.name}</div>
       <div class="bf-cls-battle">${def.cls} · 防衛側</div>
-      <div class="bf-tags"><div class="bf-tag">${def.hidden?'🌑 隠密':'👁 公開'}</div><div class="bf-tag">令呪 ${def.cs}</div></div>
+      <div class="bf-tags"><div class="bf-tag">${def.hidden?'🌑 霊体化':'👁 公開'}</div><div class="bf-tag">令呪 ${def.cs}</div></div>
     </div>`;
 
   document.getElementById('cmp-area').innerHTML=`
@@ -1292,8 +1497,11 @@ function openBattleScreen(atkId,defId,atkCards,defCards){
 
 function showBattleResult(){
   if(!battleState)return;
-  const gs=gameState;
-  const atk=gs.players[battleState.atkId],def=gs.players[battleState.defId];
+  combatDone=true;
+  const players=demoMode
+    ?Object.fromEntries(demoPlayers.map(p=>[p.id,p]))
+    :(gameState?.players||{});
+  const atk=players[battleState.atkId],def=players[battleState.defId];
   const atkBns=calcBonus(battleState.atkCards,atk,true,'');
   const defBns=calcBonus(battleState.defCards,def,false,'');
   let at=atkBns.brave?9999:battleState.atkCards.reduce((s,c)=>s+c.p,0)+atkBns.total;
@@ -1316,11 +1524,13 @@ function showBattleResult(){
 // ── ボード描画 ──
 function resizeBoard(){
   const cv=document.getElementById('board');if(!cv)return;
-  cv.width=20*CW+16;cv.height=CY+CH+32;cv.style.width=cv.width+'px';cv.style.maxWidth='100%';
+  cv.width=20*CW+16;cv.height=CY+CH+48;cv.style.width=cv.width+'px';cv.style.maxWidth='100%';
 }
 
 function drawBoard(){
   const cv=document.getElementById('board');if(!cv||!cells.length)return;
+  // デモ中はdrawDemoBoardに委譲
+  if(demoMode){drawDemoBoard();return;}
   const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
   ctx.clearRect(0,0,W,H);ctx.fillStyle='#0d0814';ctx.fillRect(0,0,W,H);
   const gs=gameState;const players=gs?Object.values(gs.players||{}):[]; 
@@ -1329,19 +1539,28 @@ function drawBoard(){
     const x=8+i*CW;const ci=CINFO[t]||CINFO.normal;
     ctx.fillStyle=ci.c;ctx.beginPath();ctx.roundRect(x,CY,CW-2,CH,4);ctx.fill();
     ctx.strokeStyle='rgba(201,168,76,.15)';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle='rgba(232,224,240,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(i+1,x+CW/2-1,CY+10);
-    if(ci.ic){ctx.font='11px sans-serif';ctx.fillStyle='rgba(232,224,240,.8)';ctx.fillText(ci.ic,x+CW/2-1,CY+CH/2+5);}
-    if(ci.lb){ctx.font='6px sans-serif';ctx.fillStyle='rgba(201,168,76,.5)';ctx.fillText(ci.lb.slice(0,5),x+CW/2-1,CY+CH-4);}
+    ctx.fillStyle='rgba(232,224,240,.4)';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(i+1,x+CW/2-1,CY+13);
+    if(ci.ic){ctx.font='16px sans-serif';ctx.fillStyle='rgba(232,224,240,.8)';ctx.fillText(ci.ic,x+CW/2-1,CY+CH/2+7);}
+    if(ci.lb){ctx.font='8px sans-serif';ctx.fillStyle='rgba(201,168,76,.5)';ctx.fillText(ci.lb.slice(0,6),x+CW/2-1,CY+CH-5);}
   });
 
   ctx.fillStyle='rgba(201,168,76,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='left';ctx.fillText('START',10,16);
   ctx.fillStyle='rgba(201,168,76,.7)';ctx.textAlign='right';ctx.fillText('GOAL',W-8,16);
 
+  // マスター駒（デモ：全員表示）
+  demoPlayers.filter(p=>!p.mdead).forEach(p=>{
+    const x=8+p.mpos*CW2;const cx=x+CW2/2+10;const cy=CY2+10;
+    ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);
+    ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('M',cx,cy+2.5);
+  });
   // SV駒描画
   const bySV={};
   players.forEach(p=>{
     if(p.sdead)return;
-    // 隠密中かつ自分でない場合は表示しない
+    // 霊体化中かつ自分でない場合は表示しない
     if(p.hidden&&p.id!==myId)return;
     if(!bySV[p.spos])bySV[p.spos]=[];bySV[p.spos].push(p);
   });
@@ -1362,12 +1581,19 @@ function drawBoard(){
     });
   });
 
-  // マスター駒（SV消滅時のみ）
-  players.filter(p=>p.sdead&&!p.mdead).forEach((p,i)=>{
-    const x=8+p.mpos*CW;const cx=x+CW/2-1;const cy=CY+CH/2+4;
-    ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
-    ctx.strokeStyle='rgba(255,255,255,.3)';ctx.lineWidth=1;ctx.stroke();
-    ctx.fillStyle='#fff';ctx.font='bold 5px sans-serif';ctx.textAlign='center';ctx.fillText('M',cx,cy+1.5);
+  // マスター駒：自分は常に表示、他人はSV消滅時のみ
+  players.filter(p=>!p.mdead&&(p.id===myId||p.sdead)).forEach(p=>{
+    const x=8+p.mpos*CW;const cx=x+CW/2+8;const cy=CY+8;
+    ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);
+    ctx.fillStyle=p.id===myId?p.color:'rgba(255,255,255,.3)';ctx.fill();
+    ctx.strokeStyle=p.color;ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('M',cx,cy+2.5);
+    if(p.id===myId){
+      // 自分のマスターは名前ラベル付き
+      ctx.font='6px sans-serif';ctx.fillStyle=p.color;
+      ctx.fillText('YOU',cx,cy-9);
+    }
   });
 }
 
@@ -1385,7 +1611,7 @@ function setupBoardClick(){
     document.getElementById('ct-desc').textContent=desc;
     const bwRect=document.getElementById('board-wrap').getBoundingClientRect();
     let left=(8+idx*CW)*(rect.width/cv.width);if(left+170>bwRect.width)left=bwRect.width-174;
-    tt.style.left=left+'px';tt.style.top=(CY+CH+28)*(rect.height/cv.height)+'px';
+    tt.style.left=left+'px';tt.style.top=(CY+CH+44)*(rect.height/cv.height)+'px';
     tt.classList.add('show');
   });
   document.addEventListener('click',(e)=>{if(!e.target.closest('#board-wrap'))tt.classList.remove('show');});
@@ -1462,6 +1688,737 @@ function getClsSvg(cls,color){
     アヴェンジャー:`<circle cx="32" cy="32" r="30" fill="rgba(0,0,0,.3)" stroke="${c}" stroke-width="1.5"/><path d="M14,56 Q18,46 26,40 Q20,38 22,30 Q28,36 24,44 Q30,36 28,26 Q34,32 30,42 Q36,32 36,22 Q40,30 36,42 Q42,32 42,22 Q46,30 44,42 Q50,34 48,24 Q52,34 48,46 Q52,42 54,36 Q54,46 48,54 Q40,60 28,60 Q20,60 14,56 Z" fill="${c}"/><path d="M20,54 Q22,46 28,42 Q24,40 26,32 Q30,38 28,44 Q32,36 32,28 Q36,32 34,44 Q38,34 40,28 Q42,34 40,44 Q44,40 46,36 Q46,44 42,50 Q36,56 28,56 Q24,54 20,50 Z" fill="rgba(0,0,0,.4)"/>`,
   };
   return icons[cls]||icons['セイバー'];
+}
+
+
+// ══════════════════════════════════════
+//  デモプレイ（ローカル・一人回し）
+// ══════════════════════════════════════
+let demoMode=false;
+let demoPlayers=[],demoDeck=[],demoCells=[],demoTurn=0,demoRound=1;
+let demoPhase='discard',demoDiscCard=null,demoAtkSel=[],demoDefSel=[],demoPending=null,demoBattle=null;
+
+function showDemoSetup(){
+  SS('create-join');
+  document.getElementById('cj-title').textContent='デモプレイ設定';
+  const body=document.getElementById('cj-body');
+  body.innerHTML=`
+    <label>プレイヤー数</label>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem" id="demo-num-row"></div>
+    <label style="margin-top:8px">召喚方式</label>
+    <div style="display:flex;gap:6px;margin-bottom:1rem">
+      <button id="demo-mode-s" class="btn-gold" onclick="window._demoRandom=true;this.className='btn-gold';document.getElementById('demo-mode-j').className=''">ランダム召喚</button>
+      <button id="demo-mode-j" onclick="window._demoRandom=false;this.className='btn-gold';document.getElementById('demo-mode-s').className=''">手動選択</button>
+    </div>`;
+  window._demoRandom=true;
+  window._demoNumP=2;
+  const nr=document.getElementById('demo-num-row');
+  [2,3,4,5,6,7,8].forEach(n=>{
+    const b=document.createElement('button');b.textContent=n+'人';b.style.cssText='padding:6px 12px;font-size:12px';
+    if(n===2)b.className='btn-gold';
+    b.onclick=()=>{window._demoNumP=n;nr.querySelectorAll('button').forEach((x,i)=>{x.className=([2,3,4,5,6,7,8][i]===n)?'btn-gold':'';});};
+    nr.appendChild(b);
+  });
+  const btn=document.getElementById('cj-btn');
+  btn.innerHTML='<i class="ti ti-player-play"></i>デモ開始';
+  btn.onclick=startDemoGame;
+}
+
+// デモ召喚フェーズ用データ
+let demoSummonList=[];
+let demoSummonIdx=0;
+let demoBattleDone=false;
+
+function startDemoGame(){
+  demoMode=true;
+  const numP=window._demoNumP||2;
+  const isRandom=window._demoRandom!==false;
+  const allCls=getClasses(numP);
+  const pool=[...BASIC.slice(0,Math.min(numP,7))];
+  if(numP>=8)pool.push('ルーラー');if(numP>=9)pool.push('アヴェンジャー');
+  while(pool.length<numP)pool.push(rnd(allCls));sh(pool);
+  const nums=[...Array(numP).keys()];sh(nums);
+
+  // プレイヤー雛形を作る（手動の場合SV/clsは後で確定）
+  demoPlayers=pool.map((cls,i)=>({
+    id:`p${i}`,name:`マスター${i+1}`,cls,sv:rnd(SP[cls]||[cls]),color:PLAYER_COLORS[i],num:nums[i],
+    spos:0,mpos:0,cs:3,hidden:true,skip:false,sdead:false,mdead:false,hand:[],revealed:false
+  }));
+  demoPlayers.sort((a,b)=>a.num-b.num);
+
+  if(isRandom){
+    // ランダム：召喚演出→ゲーム開始
+    demoSummonList=[...demoPlayers];
+    demoSummonIdx=0;
+    showDemoSummon();
+  } else {
+    // 手動：各プレイヤーにクラス/SV選択画面
+    demoSummonList=[...demoPlayers];
+    demoSummonIdx=0;
+    showDemoManualSummon();
+  }
+}
+
+function showDemoSummon(){
+  if(demoSummonIdx>=demoSummonList.length){launchDemoGame();return;}
+  const p=demoSummonList[demoSummonIdx];
+  SS('create-join');
+  document.getElementById('cj-title').textContent=`${p.name} の召喚`;
+  const body=document.getElementById('cj-body');
+  body.innerHTML=`
+    <div style="text-align:center;padding:1rem 0">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:1rem">${demoSummonIdx+1} / ${demoSummonList.length}</div>
+      <div class="summon-flip" onclick="demodoFlip()" style="width:130px;height:180px;margin:0 auto 1rem;perspective:800px;cursor:pointer">
+        <div class="sf-inner" id="demo-sf-inner">
+          <div class="sf-face sf-back"><i class="ti ti-star" style="font-size:36px;color:rgba(201,168,76,.3);margin-bottom:8px"></i><div style="font-size:10px;color:var(--text3);letter-spacing:.1em">SERVANT</div></div>
+          <div class="sf-face sf-front">
+            <div id="demo-sv-badge" style="font-size:10px;padding:3px 8px;border-radius:20px;margin-bottom:6px;font-weight:700"></div>
+            <i class="ti" id="demo-sv-icon" style="font-size:24px;margin:4px 0"></i>
+            <div id="demo-sv-name" style="font-size:13px;font-weight:700;text-align:center;margin-bottom:3px"></div>
+            <div id="demo-sv-cls" style="font-size:11px;color:var(--text2)"></div>
+            <div id="demo-sv-trait" style="font-size:9px;color:var(--text3);margin-top:4px;text-align:center;line-height:1.5"></div>
+          </div>
+        </div>
+      </div>
+      <div id="demo-summon-hint" style="font-size:12px;color:var(--text3);margin-bottom:1rem">カードをクリックして召喚</div>
+    </div>`;
+  const btn=document.getElementById('cj-btn');
+  btn.innerHTML=demoSummonIdx<demoSummonList.length-1?'<i class="ti ti-arrow-right"></i>次の召喚へ':'<i class="ti ti-sword"></i>ゲーム開始';
+  btn.disabled=true;
+  btn.onclick=()=>{demoSummonIdx++;showDemoSummon();};
+}
+
+function demodoFlip(){
+  const inner=document.getElementById('demo-sf-inner');if(!inner||inner.classList.contains('flipped'))return;
+  inner.classList.add('flipped');
+  const p=demoSummonList[demoSummonIdx];
+  document.getElementById('demo-sv-badge').textContent=p.cls;
+  document.getElementById('demo-sv-badge').style.cssText=`background:${CC[p.cls]}22;color:${CC[p.cls]};font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700`;
+  const ic=document.getElementById('demo-sv-icon');ic.className=`ti ${CI[p.cls]||'ti-star'}`;ic.style.color=CC[p.cls]||'#c9a84c';
+  document.getElementById('demo-sv-name').textContent=p.sv;
+  document.getElementById('demo-sv-cls').textContent=p.cls;
+  document.getElementById('demo-sv-trait').textContent=CT[p.cls]||'';
+  document.getElementById('demo-summon-hint').textContent='召喚完了！';
+  document.getElementById('cj-btn').disabled=false;
+}
+
+function showDemoManualSummon(){
+  if(demoSummonIdx>=demoSummonList.length){launchDemoGame();return;}
+  const p=demoSummonList[demoSummonIdx];
+  const numP=window._demoNumP||2;
+  const avail=[...BASIC,...EX]; // 手動召喚は全クラス選択可
+  SS('create-join');
+  document.getElementById('cj-title').textContent=`${p.name} のSV選択`;
+  const body=document.getElementById('cj-body');
+  body.innerHTML=`
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px">${demoSummonIdx+1} / ${demoSummonList.length}</div>
+    <label>クラス</label>
+    <div id="demo-cls-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
+    <label>サーヴァント</label>
+    <select id="demo-sv-sel" style="width:100%;padding:6px 8px;font-size:12px;background:var(--bg2);color:var(--text);border:1px solid var(--border2);border-radius:var(--r);margin-bottom:1rem"></select>`;
+  const renderDemoPills=()=>{
+    const row=document.getElementById('demo-cls-pills');row.innerHTML='';
+    avail.forEach(cls=>{
+      const b=document.createElement('button');b.textContent=cls;
+      b.style.cssText=`font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid ${p.cls===cls?CC[cls]:'var(--border2)'};background:${p.cls===cls?CC[cls]+'22':'transparent'};color:${p.cls===cls?CC[cls]:'var(--text2)'}`;
+      b.onclick=()=>{p.cls=cls;p.sv=(SP[cls]||[])[0]||cls;renderDemoPills();renderDemoSvSel();};
+      row.appendChild(b);
+    });
+  };
+  const renderDemoSvSel=()=>{
+    const sel=document.getElementById('demo-sv-sel');if(!sel)return;
+    sel.innerHTML=(SP[p.cls]||[p.cls]).map(s=>`<option${s===p.sv?' selected':''}>${s}</option>`).join('');
+    sel.onchange=e=>{p.sv=e.target.value;};
+  };
+  renderDemoPills();renderDemoSvSel();
+  const btn=document.getElementById('cj-btn');
+  btn.innerHTML=demoSummonIdx<demoSummonList.length-1?'<i class="ti ti-arrow-right"></i>次へ':'<i class="ti ti-sword"></i>ゲーム開始';
+  btn.disabled=false;
+  btn.onclick=()=>{demoSummonIdx++;showDemoManualSummon();};
+}
+
+function launchDemoGame(){
+  // 全プレイヤーのSVをdemoSummonListから確定してdemoPlayersに反映
+  demoSummonList.forEach((s,i)=>{demoPlayers[i].cls=s.cls;demoPlayers[i].sv=s.sv;});
+
+  // マス配置
+  const cellPool=[...CELL_POOL];sh(cellPool);
+  demoCells=['start',...cellPool,'goal'];
+
+  // デッキ
+  demoDeck=[];
+  demoPlayers.forEach(p=>{
+    const cs=CD[p.sv]||[{t:'B',p:3},{t:'A',p:3},{t:'Q',p:2},{t:'B',p:3},{t:'A',p:3}];
+    cs.forEach(c=>demoDeck.push({...c,sv:p.sv,cls:p.cls,pid:p.id}));
+  });
+  sh(demoDeck);
+  demoPlayers.forEach(p=>{for(let i=0;i<3;i++)p.hand.push(demoPopCard());});
+
+  demoTurn=0;demoRound=1;demoPhase='discard';demoDiscCard=null;demoAtkSel=[];demoDefSel=[];demoPending=null;demoBattle=null;demoBattleDone=false;
+  cells=demoCells;
+
+  SS('game');
+  resizeBoard();setupBoardClick();
+  renderDemoGame();drawDemoBoard();
+  addLog('⚔ デモプレイ開始！全SVは霊体化でスタート','le');
+}
+
+function demoPopCard(){
+  if(!demoDeck.length){
+    demoDeck=[];demoPlayers.forEach(p=>{const cs=CD[p.sv]||[{t:'B',p:3},{t:'A',p:3},{t:'Q',p:2},{t:'B',p:3},{t:'A',p:3}];cs.forEach(c=>demoDeck.push({...c,sv:p.sv,cls:p.cls,pid:p.id}));});sh(demoDeck);
+  }
+  return demoDeck.pop();
+}
+
+function demoCP(){return demoPlayers[demoTurn];}
+function demoElim(p){return p.sdead&&p.mdead;}
+
+function renderDemoGame(){
+  if(!demoMode)return;
+  const p=demoCP();
+  // フェーズ更新
+  const pi=PHASES.indexOf(demoPhase);
+  PIDS.forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.classList.remove('active','done');if(i<pi)el.classList.add('done');else if(i===pi)el.classList.add('active');});
+  // ヘッダー
+  document.getElementById('g-turn-dot').style.background=p.color;
+  document.getElementById('g-turn-name').textContent=`${p.num+1}. ${p.name}`;
+  document.getElementById('g-turn-status').textContent=`（${p.cls}）`;
+  document.getElementById('g-round').textContent=`ラウンド ${demoRound}`;
+  // プレイヤーリスト
+  const plist=document.getElementById('g-plist');plist.innerHTML='';
+  demoPlayers.forEach(q=>{
+    const dead=demoElim(q);
+    const div=document.createElement('div');div.className=`pp${dead?' dead':''}${q.id===p.id?' cur':''}`;
+    div.innerHTML=`
+      <div class="pp-top">
+        <div class="pp-num" style="background:${q.color}22;color:${q.color};border:1px solid ${q.color}44">${q.num+1}</div>
+        <div class="pp-name-text" style="color:${q.color}">${q.name}</div>
+        <div class="pp-cls-badge" style="background:${CC[q.cls]||'#534AB7'}22;color:${CC[q.cls]||'#534AB7'}">${q.cls}</div>
+      </div>
+      <div class="pp-detail">SV:${q.spos+1}M　令:${q.cs}${q.hidden?' 🌑霊体化':''}${q.sdead?' [SV消滅]':''}</div>`;
+    plist.appendChild(div);
+  });
+  renderHandImgs();
+  updatePhaseDetail(demoPhase);
+  renderDemoActions();
+}
+
+function renderDemoHand(selList,onToggle){
+  const p=demoCP();
+  const hr=document.getElementById('hand-row');hr.innerHTML='';
+  document.getElementById('hand-sub').textContent=selList?`（${selList.length}枚選択中）`:'';
+  p.hand.forEach((c,i)=>{
+    const isSel=selList&&selList.includes(i);
+    const order=selList?selList.indexOf(i)+1:0;
+    const d=document.createElement('div');d.className=`hc${isSel?' sel-battle':''}`;
+    d.innerHTML=`${isSel&&order>0?`<div class="hc-num">${order}</div>`:''}
+      <div class="hc-t ${c.t}-c">${c.t}</div><div class="hc-p">${c.p}</div><div class="hc-s">${c.sv.slice(0,4)}</div>`;
+    if(onToggle)d.onclick=()=>onToggle(i);
+    hr.appendChild(d);
+  });
+}
+
+function renderDemoActions(){
+  const p=demoCP();
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  const hint=document.getElementById('act-hint');hint.textContent='';
+  document.getElementById('act-label').textContent='アクション';
+  updatePhaseDetail(demoPhase);
+
+  if(demoPhase==='discard'){
+    document.getElementById('act-label').textContent=`① ${p.name}：手札から1枚捨ててください`;
+    // アサシン特性：公開状態なら行動消費なしで霊体化
+    if(p.cls==='アサシン'&&!p.hidden&&!p.sdead){
+      const ab=mkbtn('気配遮断：行動消費なしで霊体化','btn-gold act-btn','ti-eye-off');
+      ab.style.cssText='margin-bottom:8px;font-size:11px';
+      ab.onclick=()=>{
+        p.hidden=true;
+        drawDemoBoard();
+        addLog(`${p.name}（アサシン）気配遮断で霊体化！`,'le');
+        renderDemoGame();
+      };
+      ar.appendChild(ab);
+      const sep=document.createElement('div');sep.style.cssText='width:100%;height:1px;background:var(--border2);margin-bottom:8px';
+      ar.appendChild(sep);
+    }
+    if(p.skip){
+      const b=mkbtn('ターンをスキップ（行動不能）','btn-gold act-btn','ti-player-skip-forward');
+      b.onclick=()=>{p.skip=false;addLog(`${p.name} は行動不能でスキップ`);demoFinalDraw();};
+      ar.appendChild(b);renderDemoHand(null,null);return;
+    }
+    let selIdx=-1;
+    renderDemoHand(null,(idx)=>{
+      selIdx=idx;
+      document.getElementById('hand-row').querySelectorAll('.hc').forEach((d,i)=>{d.className=`hc${i===idx?' sel':''}`;});
+      discBtn.disabled=false;
+      hint.textContent=`${p.hand[idx]?.sv}（${p.hand[idx]?.t}/${p.hand[idx]?.p}）を捨てる`;
+    });
+    const discBtn=mkbtn('選択したカードを捨てる','btn-gold act-btn','ti-trash');
+    discBtn.disabled=true;
+    discBtn.onclick=()=>{
+      if(selIdx<0)return;
+      demoDiscCard=p.hand[selIdx];p.hand.splice(selIdx,1);
+      addLog(`${p.name} が ${demoDiscCard.t}（${demoDiscCard.p}）を捨てた`);
+      demoPhase='action';renderDemoGame();
+    };
+    ar.appendChild(discBtn);
+    hint.textContent='手札から1枚クリックして選択してください';
+
+  } else if(demoPhase==='action'){
+    document.getElementById('act-label').textContent='② アクションを選んでください';
+    renderDemoHand(null,null);
+    if(!p.sdead){
+      const mv=mkbtn('移動する','btn-gold act-btn','ti-walk');
+      mv.onclick=()=>{
+        mv.disabled=true;ar.querySelectorAll('button').forEach(b=>b.disabled=true);
+        if(!demoDiscCard)return;
+        let steps=demoDiscCard.p;
+        if(p.cls==='ライダー'&&!p.hidden)steps+=2;
+        if(p.cls==='セイバー'&&!p.hidden)steps+=1;
+        const newPos=Math.min(p.spos+steps,demoCells.length-1);
+        demoAnimMove(p,p.spos,newPos,()=>{
+          addLog(`${p.name} のSVが ${steps}マス進む → ${p.spos+1}マス目`);
+          if(p.spos>=demoCells.length-1){drawDemoBoard();demoWin(p);return;}
+          demoPhase='master';renderDemoGame();drawDemoBoard();
+        });
+      };
+      ar.appendChild(mv);
+      const hd=mkbtn(p.hidden?'実体化する':'霊体化する','act-btn','ti-eye-off');
+      hd.onclick=()=>{
+        p.hidden=!p.hidden;
+        if(!p.hidden)p.revealed=true;
+        addLog(`${p.name} が${p.hidden?'霊体化した':'実体化した'}`,p.hidden?'le':'');
+        drawDemoBoard();demoFinalDraw();
+      };
+      ar.appendChild(hd);
+    } else {
+      const b=mkbtn('手札補充へ','act-btn','ti-player-skip-forward');b.onclick=demoFinalDraw;ar.appendChild(b);
+    }
+    if(p.cs>0){const cs=mkbtn(`令呪（${p.cs}画）`,'btn-red act-btn','ti-bolt');cs.onclick=demoshowCS;ar.appendChild(cs);}
+
+  } else if(demoPhase==='master'){
+    document.getElementById('act-label').textContent='③ マスターの行動';
+    renderDemoHand(null,null);
+    const y=mkbtn('SVに同行する','btn-gold act-btn','ti-walk');
+    y.onclick=()=>{p.mpos=p.spos;addLog(`${p.name} のマスターが同行 → ${p.mpos+1}マス目`);drawDemoBoard();demoPhase='cell';renderDemoGame();};
+    const n=mkbtn('その場に留まる','act-btn','ti-home');
+    n.onclick=()=>{addLog(`${p.name} のマスターは ${p.mpos+1}マス目に留まる`);drawDemoBoard();demoPhase='cell';renderDemoGame();};
+    ar.appendChild(y);ar.appendChild(n);
+
+  } else if(demoPhase==='cell'){
+    document.getElementById('act-label').textContent='④ マスの効果';
+    renderDemoHand(null,null);
+    demoCellFx();
+
+  } else if(demoPhase==='draw1'){
+    renderDemoHand(null,null);
+    const card=demoPopCard();p.hand.push(card);
+    addLog(`${p.name} が1枚ドロー`);
+    showDrawFX(card,p.name,()=>{demoPhase='combat';renderDemoGame();});
+
+  } else if(demoPhase==='combat'){
+    document.getElementById('act-label').textContent='⑥ 戦闘フェーズ';
+    renderDemoHand(null,null);
+    demoCombatActions();
+
+  } else if(demoPhase==='atk_sel'){
+    document.getElementById('act-label').textContent='⚔ 攻撃カードを3枚選んでください';
+    renderDemoHand(demoAtkSel,(idx)=>{
+      const i=demoAtkSel.indexOf(idx);
+      if(i>=0)demoAtkSel.splice(i,1);else if(demoAtkSel.length<3)demoAtkSel.push(idx);
+      renderDemoActions();
+    });
+    const b=mkbtn('この3枚で攻撃する','btn-red act-btn','ti-sword');
+    b.disabled=demoAtkSel.length!==3;
+    b.onclick=()=>{
+      demoBattle.atkCards=demoAtkSel.map(i=>demoPlayers[demoBattle.atkIdx].hand[i]);
+      const def=demoPlayers[demoBattle.defIdx];
+      def.hand.push(demoPopCard());
+      demoDefSel=[];demoPhase='def_sel';renderDemoGame();
+    };
+    ar.appendChild(b);
+    hint.textContent=`${demoAtkSel.length}/3枚選択中`;
+
+  } else if(demoPhase==='def_sel'){
+    const def=demoPlayers[demoBattle.defIdx];
+    document.getElementById('act-label').textContent=`🛡 ${def.name}：防衛カードを3枚選んでください`;
+    // 防衛側の手札を表示
+    const hr=document.getElementById('hand-row');hr.innerHTML='';
+    document.getElementById('hand-sub').textContent=`（${demoDefSel.length}/3枚選択中）`;
+    def.hand.forEach((c,i)=>{
+      const isSel=demoDefSel.includes(i);
+      const d=document.createElement('div');d.className=`hc${isSel?' sel-battle':''}`;
+      d.innerHTML=`${isSel?`<div class="hc-num">${demoDefSel.indexOf(i)+1}</div>`:''}
+        <div class="hc-t ${c.t}-c">${c.t}</div><div class="hc-p">${c.p}</div><div class="hc-s">${c.sv.slice(0,4)}</div>`;
+      d.onclick=()=>{const j=demoDefSel.indexOf(i);if(j>=0)demoDefSel.splice(j,1);else if(demoDefSel.length<3)demoDefSel.push(i);renderDemoActions();};
+      hr.appendChild(d);
+    });
+    const b=mkbtn('この3枚で防衛する','btn-green act-btn','ti-shield');
+    b.disabled=demoDefSel.length!==3;
+    b.onclick=()=>{
+      demoBattle.defCards=demoDefSel.map(i=>def.hand[i]);
+      openBattleScreen(
+        demoPlayers[demoBattle.atkIdx].id,
+        demoPlayers[demoBattle.defIdx].id,
+        demoBattle.atkCards,
+        demoBattle.defCards
+      );
+      // 結果ボタンのコールバック
+      // battle-result-btnに結果処理を紐付け
+      setTimeout(()=>{
+        const btn=document.getElementById('battle-result-btn');
+        if(btn)btn.onclick=demoBattleResult;
+      },100);
+    };
+    ar.appendChild(b);
+    hint.textContent=`${demoDefSel.length}/3枚選択中`;
+
+  } else if(demoPhase==='defeat_choice'){
+    renderDemoHand(null,null);
+    renderDemoDefeatChoice();
+  } else if(demoPhase==='counter_choice'){
+    renderDemoHand(null,null);
+    renderDemoCounterChoice();
+  } else if(demoPhase==='draw2'){
+    demoFinalDraw();
+  }
+}
+
+function demoCellFx(){
+  const p=demoCP();const idx=p.spos;const cell=demoCells[idx];const ci=CINFO[cell]||CINFO.normal;
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  let msg='';
+  if(cell==='reveal'){if(p.hidden){p.hidden=false;p.revealed=true;msg='強制実体化！';addLog(`${p.name} が強制実体化！`,'le');drawDemoBoard();}else msg='すでに実体化状態（効果なし）';}
+  else if(cell==='warp'){if(p.hidden){p.spos=Math.min(p.spos+2,demoCells.length-2);msg=`霊体化中のため+2マス → ${p.spos+1}マス目`;addLog(`${p.name} が近道+2マス！`,'le');drawDemoBoard();if(p.spos>=demoCells.length-1){demoWin(p);return;}}else msg='実体化状態のためワープ不可';}
+  else if(cell==='sleep_h'){if(p.hidden){p.skip=true;msg='霊体化中のため一回休み！';addLog(`${p.name} が一回休み`,'le');}else msg='実体化状態のため効果なし';}
+  else if(cell==='safe'){msg='安置マス — 戦闘は発生しない';}
+  else if(cell==='reishi'){if(p.cs<3){p.cs++;msg=`令呪+1（${p.cs}画）`;addLog(`${p.name} 令呪回復`,'le');}else msg='令呪は満タン';}
+  else if(cell==='battle'||cell==='battle_remote'){msg=cell==='battle_remote'?'交戦マス（広域）':'交戦マス';}
+  else msg='効果なし';
+
+  const eff=document.createElement('div');
+  eff.style.cssText='background:var(--bg3);border-radius:var(--r);padding:8px 12px;margin-bottom:10px;font-size:12px;display:flex;align-items:center;gap:8px;border:1px solid var(--border2)';
+  eff.innerHTML=`<span style="font-size:16px">${ci.ic||'□'}</span><div><div style="font-weight:700">${ci.lb}</div><div style="color:var(--text2);font-size:11px">${msg}</div></div>`;
+  document.getElementById('ap-content').insertBefore(eff,document.getElementById('ap-content').firstChild);
+  const next=mkbtn('次へ（ドローへ）','btn-gold act-btn','ti-arrow-right');
+  next.onclick=()=>{eff.remove();demoPhase='draw1';renderDemoGame();};
+  ar.appendChild(next);
+}
+
+function demoCombatActions(){
+  const p=demoCP();const ar=document.getElementById('act-row');ar.innerHTML='';
+  if(demoBattleDone){const b=mkbtn('手札補充へ','act-btn','ti-player-skip-forward');b.onclick=demoFinalDraw;ar.appendChild(b);document.getElementById('act-hint').textContent='今ターンの戦闘は終了しました';return;}
+  const tgts=demoGetTargets(p);
+  if(!tgts.length){
+    const b=mkbtn('戦闘なし — 手札補充へ','act-btn','ti-player-skip-forward');
+    b.onclick=demoFinalDraw;ar.appendChild(b);
+    document.getElementById('act-hint').textContent='攻撃可能な相手がいません';return;
+  }
+  tgts.forEach(t=>{
+    const b=mkbtn(`${t.num+1}. ${t.name}と戦闘する${t.hidden?' 🌑':''}（${t.spos+1}マス）`,'act-btn btn-red','ti-sword');
+    b.onclick=()=>{
+      demoBattle={atkIdx:demoPlayers.indexOf(p),defIdx:demoPlayers.indexOf(t),atkCards:null,defCards:null};
+      demoAtkSel=[];demoDefSel=[];demoPhase='atk_sel';renderDemoGame();
+    };
+    ar.appendChild(b);
+  });
+  const skip=mkbtn('戦闘スキップ','act-btn','ti-player-skip-forward');skip.onclick=demoFinalDraw;ar.appendChild(skip);
+}
+
+function demoGetTargets(p){
+  const onBattle=pos=>demoCells[pos]==='battle'||demoCells[pos]==='battle_remote';
+  return demoPlayers.filter(q=>{
+    if(q.id===p.id||demoElim(q))return false;
+    if(demoCells[p.spos]==='safe')return false;
+    if(p.spos===0||q.spos===0)return false;
+    if(!p.sdead&&!q.sdead&&q.spos===p.spos)return true;
+    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden)return true;
+    return false;
+  });
+}
+
+function demoBattleResult(){
+  if(!demoBattle)return;
+  demoBattleDone=true;
+  const atk=demoPlayers[demoBattle.atkIdx],def=demoPlayers[demoBattle.defIdx];
+  const atkBns=calcBonus(demoBattle.atkCards,atk,true,'');
+  const defBns=calcBonus(demoBattle.defCards,def,false,'');
+  let at=atkBns.brave?9999:demoBattle.atkCards.reduce((s,c)=>s+c.p,0)+atkBns.total;
+  let dt=defBns.brave?9999:demoBattle.defCards.reduce((s,c)=>s+c.p,0)+defBns.total;
+  if(atk.cls==='アサシン'){atk.hidden=true;}
+  // 使ったカードを手札から削除
+  demoAtkSel.sort((a,b)=>b-a).forEach(i=>atk.hand.splice(i,1));
+  demoDefSel.sort((a,b)=>b-a).forEach(i=>def.hand.splice(i,1));
+  while(atk.hand.length<3)atk.hand.push(demoPopCard());
+  while(def.hand.length<3)def.hand.push(demoPopCard());
+
+  const win=at>dt,draw=at===dt;
+  addLog(`${atk.name}[${Math.min(at,99)}] vs ${def.name}[${Math.min(dt,99)}] → ${win?'攻撃側勝利':draw?'相打ち':'防衛側勝利'}`,'lb');
+
+  const ro=document.getElementById('result-ov');
+  if(draw){
+    ro.className='result-ov draw show';
+    document.getElementById('res-icon').textContent='⚡';document.getElementById('res-text').textContent='DRAW';document.getElementById('res-detail').textContent='相打ち';
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');demoBattle=null;demoFinalDraw();};
+  } else if(win){
+    ro.className='result-ov win show';
+    document.getElementById('res-icon').textContent='⚔';document.getElementById('res-text').textContent='VICTORY';document.getElementById('res-detail').textContent=`${atk.name} の勝利！`;
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');demoPending={loserId:def.id,winnerId:atk.id,defWon:false};demoPhase='defeat_choice';renderDemoGame();};
+  } else {
+    ro.className='result-ov lose show';
+    document.getElementById('res-icon').textContent='🛡';document.getElementById('res-text').textContent='DEFEAT';document.getElementById('res-detail').textContent=`${def.name} が防衛成功！`;
+    document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');demoPending={loserId:atk.id,winnerId:def.id,defWon:true};demoPhase='counter_choice';renderDemoGame();};
+  }
+}
+
+function renderDemoDefeatChoice(){
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  if(!demoPending)return;
+  const loser=demoPlayers.find(p=>p.id===demoPending.loserId);
+  const countered=demoPending.countered;
+  document.getElementById('act-label').textContent=`${loser.name} の選択`;
+  if(loser.cs>0){
+    const y=mkbtn(`令呪1画消費して${countered?'マスターのもとへ撤退':'マスターのそばに復帰'}（残り${loser.cs}画）`,'btn-green act-btn','ti-heart');
+    y.onclick=()=>{
+      loser.cs--;loser.sdead=false;
+      if(countered){loser.spos=loser.mpos;loser.hidden=true;}
+      else{loser.spos=loser.mpos;loser.hidden=true;}
+      addLog(`${loser.name} が令呪消費してマスターのもとへ撤退！`,'le');
+      showCSFX(loser.name,countered?'撤退':'撤退',loser.cs,()=>{demoPending=null;drawDemoBoard();demoPhase='combat';renderDemoGame();});
+    };ar.appendChild(y);
+  }
+  const n=mkbtn('復帰しない（SVをロスト）','act-btn btn-red','ti-skull');
+  n.onclick=()=>{loser.sdead=true;addLog(`${loser.name} のSVがロスト！`,'lb');showDefeatFX(loser.name,loser.sv,()=>{const alive=demoPlayers.filter(p=>!demoElim(p));if(alive.length===1){demoWin(alive[0]);}else{demoPending=null;drawDemoBoard();demoPhase='combat';renderDemoGame();}});};
+  ar.appendChild(n);
+}
+
+function renderDemoCounterChoice(){
+  const ar=document.getElementById('act-row');ar.innerHTML='';
+  if(!demoPending)return;
+  const defender=demoPlayers.find(p=>p.id===demoPending.winnerId);
+  const attacker=demoPlayers.find(p=>p.id===demoPending.loserId);
+  document.getElementById('act-label').textContent=`${defender.name}（防衛側）の選択`;
+  if(defender.cs>0){
+    const y=mkbtn(`令呪1画で反撃（残り${defender.cs}画）`,'btn-red act-btn','ti-bolt');
+    y.onclick=()=>{
+      defender.cs--;attacker.sdead=true;
+      addLog(`${defender.name} が令呪【反撃】！`,'le');
+      showCSFX(defender.name,'反撃',defender.cs,()=>{showDefeatFX(attacker.name,attacker.sv,()=>{const alive=demoPlayers.filter(p=>!demoElim(p));if(alive.length===1){demoWin(alive[0]);}else{demoPending={loserId:attacker.id,winnerId:defender.id,countered:true};demoPhase='defeat_choice';renderDemoGame();}});});
+    };ar.appendChild(y);
+  }
+  const n=mkbtn('反撃しない','act-btn','ti-shield');
+  n.onclick=()=>{addLog(`${defender.name} は反撃しなかった`);demoPending=null;demoFinalDraw();};
+  ar.appendChild(n);
+}
+
+function demoshowCS(){
+  const p=demoCP();
+  let html=`<div style="display:flex;flex-direction:column;gap:6px">
+    <button class="act-btn" onclick="demoUseCS('retreat')"><i class="ti ti-corner-up-left"></i>撤退（1画）— スタートへ戻る</button>`;
+  if(p.hidden)html+=`<button class="act-btn" onclick="demoUseCS('ambush')"><i class="ti ti-bolt"></i>奇襲（1画）霊体化限定</button>`;
+  html+=`<button onclick="closeModal()">キャンセル</button></div>`;
+  showModal('令呪を使う',html,null,true);
+}
+function demoUseCS(action){
+  closeModal();const p=demoCP();p.cs--;
+  if(action==='retreat'){p.spos=p.mpos;p.hidden=true;addLog(`${p.name} が令呪【撤退】！`,'le');showCSFX(p.name,'撤退',p.cs,()=>{drawDemoBoard();demoFinalDraw();});}
+  else{addLog(`${p.name} が令呪【奇襲】！`,'le');showCSFX(p.name,'奇襲',p.cs,()=>{demoPhase='combat';renderDemoGame();});}
+}
+
+function demoFinalDraw(){
+  demoPhase='draw2';
+  demoPlayers.forEach(p=>{while(p.hand.length<3&&!demoElim(p))p.hand.push(demoPopCard());});
+  // 次のターンへ
+  const p=demoCP();p.hidden=p.hidden; // warpフラグリセット
+  let n=demoTurn;
+  do{n=(n+1)%demoPlayers.length;}while(demoElim(demoPlayers[n]));
+  if(n<=demoTurn)demoRound++;
+  demoTurn=n;demoDiscCard=null;demoAtkSel=[];demoDefSel=[];demoPending=null;demoBattle=null;demoBattleDone=false;demoPhase='discard';
+  addLog(`── ${demoPlayers[demoTurn].name} のターン ──`);
+  renderDemoGame();drawDemoBoard();
+}
+
+function demoAnimMove(p,from,to,cb){
+  if(from>=to){p.spos=to;drawDemoBoard();cb&&cb();return;}
+  let cur=from;
+  const step=()=>{cur++;p.spos=cur;drawDemoBoard();if(cur<to)setTimeout(step,180);else setTimeout(cb,180);};
+  setTimeout(step,120);
+}
+
+function demoWin(p){
+  addLog(`🏆 ${p.name}（${p.cls}）が聖杯を手に入れた！`,'lw');
+  showModal('聖杯戦争終結',`<div class="modal-body" style="text-align:center;font-size:14px">${p.name}（${p.cls}）の勝利！</div>`,[{l:'タイトルへ',fn:()=>{demoMode=false;SS('title');}}],true);
+}
+
+function drawDemoBoard(){
+  cells=demoCells;
+  const cv=document.getElementById('board');if(!cv||!demoCells.length)return;
+  const ctx=cv.getContext('2d');const W=cv.width,H=cv.height;
+  ctx.clearRect(0,0,W,H);ctx.fillStyle='#0d0814';ctx.fillRect(0,0,W,H);
+  const CW2=70,CH2=90,CY2=32;
+  demoCells.forEach((t,i)=>{
+    const x=8+i*CW2;const ci=CINFO[t]||CINFO.normal;
+    ctx.fillStyle=ci.c;ctx.beginPath();ctx.roundRect(x,CY2,CW2-2,CH2,4);ctx.fill();
+    ctx.strokeStyle='rgba(201,168,76,.15)';ctx.lineWidth=1;ctx.stroke();
+    ctx.fillStyle='rgba(232,224,240,.4)';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(i+1,x+CW2/2-1,CY2+13);
+    if(ci.ic){ctx.font='16px sans-serif';ctx.fillStyle='rgba(232,224,240,.8)';ctx.fillText(ci.ic,x+CW2/2-1,CY2+CH2/2+7);}
+    if(ci.lb){ctx.font='8px sans-serif';ctx.fillStyle='rgba(201,168,76,.5)';ctx.fillText(ci.lb.slice(0,6),x+CW2/2-1,CY2+CH2-5);}
+  });
+  ctx.fillStyle='rgba(201,168,76,.4)';ctx.font='bold 7px sans-serif';ctx.textAlign='left';ctx.fillText('START',10,16);
+  ctx.fillStyle='rgba(201,168,76,.7)';ctx.textAlign='right';ctx.fillText('GOAL',W-8,16);
+  // マスター駒
+  demoPlayers.filter(p=>!p.mdead).forEach(p=>{
+    const x=8+p.mpos*CW2;const cx=x+CW2/2+12;const cy=CY2+10;
+    ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);
+    ctx.fillStyle=p.color;ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.5)';ctx.lineWidth=1.5;ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold 7px sans-serif';ctx.textAlign='center';
+    ctx.fillText('M',cx,cy+2.5);
+  });
+  // SV駒
+  const bySV={};
+  demoPlayers.forEach(p=>{if(!p.sdead){if(!bySV[p.spos])bySV[p.spos]=[];bySV[p.spos].push(p);}});
+  Object.entries(bySV).forEach(([pos,ps])=>{
+    ps.forEach((p,i)=>{
+      const x=8+parseInt(pos)*CW2;const cx=x+CW2/2-1+(i-(ps.length-1)/2)*11;const cy=CY2+CH2+18;
+      ctx.beginPath();ctx.arc(cx,cy,10,0,Math.PI*2);ctx.fillStyle=p.color;ctx.fill();
+      ctx.strokeStyle='rgba(255,255,255,.4)';ctx.lineWidth=2;ctx.stroke();
+      if(!p.revealed){ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.fillText(p.num+1,cx,cy+4);}
+      else{ctx.fillStyle='#fff';ctx.font='8px sans-serif';ctx.textAlign='center';ctx.fillText(p.cls.slice(0,2),cx,cy+3);}
+      if(p.hidden){ctx.beginPath();ctx.arc(cx+7,cy-7,4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,.7)';ctx.fill();}
+    });
+  });
+}
+
+
+// フェーズ詳細テキスト
+const PHASE_DETAILS={
+  discard:{
+    title:'① 手札を捨てる',
+    sections:[
+      {title:'やること',text:'手札から1枚選んでクリックし、「捨てる」ボタンを押す。'},
+      {title:'捨てたカードのパワーが移動力',text:'例：パワー4のカードを捨てると4マス進める。',highlight:true},
+      {title:'クラス補正',items:[
+        {cls:'ライダー',text:'移動+2（公開時）'},
+        {cls:'セイバー',text:'移動+1（公開時）'},
+      ]},
+    ]
+  },
+  action:{
+    title:'② 行動を選ぶ',
+    sections:[
+      {title:'移動する',text:'捨てたカードのパワー値分マスを進む。マスターは同行するか選べる。'},
+      {title:'霊体化する',text:'自分のSVが他のプレイヤーから見えなくなる。ボード上の駒が消える。'},
+      {title:'霊体化中のメリット',badges:['good:戦闘+2補正','good:ボード上で見えない','good:近道+2マス使える']},
+      {title:'霊体化中のデメリット',badges:['bad:隠密解除マスで強制実体化','bad:一回休みマスで行動不能','bad:クラス特性が発動しない']},
+      {title:'アサシン特性',text:'公開状態でターン開始時、行動を消費せず霊体化できる（毎ターン使用可）。',highlight:true},
+      {title:'公開中のメリット',badges:['good:クラス特性が発動','good:隠密解除マス効果なし','good:一回休みマス効果なし']},
+      {title:'公開中のデメリット',badges:['bad:ボード上で全員に見える','bad:近道+2マス使えない']},
+    ]
+  },
+  master:{
+    title:'③ マスターの行動',
+    sections:[
+      {title:'マスターとは',text:'あなた自身。SVが生存中は自分にしか見えない（ボード上でも非表示）。'},
+      {title:'同行する',text:'マスターがSVと同じマスに移動する。SVが消滅するとマスターの位置が公開される。',highlight:true},
+      {title:'留まる',text:'マスターはそのままの位置に残る。'},
+    ]
+  },
+  cell:{
+    title:'④ マスの効果',
+    sections:[
+      {title:'マスの種類',items:[
+        {label:'👁 実体化',text:'霊体化中なら強制実体化'},
+        {label:'↯ 近道+2',text:'霊体化中なら+2マス追加（交戦不可）'},
+        {label:'💤 一回休み',text:'霊体化中なら次ターン行動不能'},
+        {label:'⚔ 交戦',text:'同マスの相手と戦闘可'},
+        {label:'⚔ 交戦（広域）',text:'他の交戦マスの公開SVとも戦闘可'},
+        {label:'🛡 安置',text:'戦闘が発生しない'},
+        {label:'◈ 令呪回復',text:'令呪+1（最大3画）'},
+      ]},
+    ]
+  },
+  draw1:{
+    title:'⑤ ドロー',
+    sections:[
+      {title:'やること',text:'デッキから1枚引いて手札に加える。'},
+    ]
+  },
+  combat:{
+    title:'⑥ 戦闘',
+    sections:[
+      {title:'戦闘の流れ',items:[
+        {label:'攻撃側',text:'手札3枚を選んで出す'},
+        {label:'防衛側',text:'1枚引いて4枚から3枚選ぶ'},
+        {label:'比較',text:'合計パワー＋ボーナスで勝敗決定'},
+      ]},
+      {title:'チェインボーナス',items:[
+        {label:'同SV3枚',text:'ブレイブチェイン → 即勝利！'},
+        {label:'同色3枚',text:'+3ボーナス'},
+        {label:'霊体化から攻撃',text:'戦闘+2'},
+      ]},
+      {title:'勝敗後の処理',text:'攻撃側勝利→防衛側は令呪1画で復帰。防衛側勝利→防衛側は令呪1画で反撃可。',highlight:true},
+    ]
+  },
+  draw2:{
+    title:'⑦ 手札補充',
+    sections:[
+      {title:'やること',text:'全プレイヤーの手札が3枚になるよう補充する。次のプレイヤーのターンへ。'},
+    ]
+  },
+  atk_select:{
+    title:'⚔ 攻撃カードを選ぶ',
+    sections:[
+      {title:'ルール',text:'手札から3枚を選ぶ。同じSVの3枚ならブレイブチェイン（即勝利）。同じ色3枚なら+3ボーナス。',highlight:true},
+    ]
+  },
+  def_select:{
+    title:'🛡 防衛カードを選ぶ',
+    sections:[
+      {title:'ルール',text:'1枚引いた4枚から3枚を選ぶ。チェインを狙って選ぼう。',highlight:true},
+    ]
+  },
+  defeat_choice:{
+    title:'令呪の選択',
+    sections:[
+      {title:'令呪を使って復帰',text:'令呪1画を消費してSVをマスターのもとへ撤退させる。令呪がなければロスト。',highlight:true},
+      {title:'令呪の残り枚数',text:'令呪0になった状態で再度敗北するとSVがロストし、マスターだけになる。'},
+    ]
+  },
+  counter_choice:{
+    title:'反撃の選択（防衛側）',
+    sections:[
+      {title:'防衛側勝利後の選択',text:'令呪1画を消費して相手SVを撃破できる。反撃された攻撃側は令呪があれば撤退、なければロスト。',highlight:true},
+    ]
+  },
+};
+
+function updatePhaseDetail(ph){
+  const el=document.getElementById('pd-content');if(!el)return;
+  const data=PHASE_DETAILS[ph]||PHASE_DETAILS['discard'];
+  let html=`<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:10px">${data.title}</div>`;
+  (data.sections||[]).forEach(s=>{
+    html+=`<div class="pd-section">`;
+    html+=`<div class="pd-section-title">${s.title}</div>`;
+    if(s.text)html+=`<div class="pd-text">${s.text}</div>`;
+    if(s.highlight&&s.text)html=html.replace(`<div class="pd-text">${s.text}</div>`,`<div class="pd-highlight">${s.text}</div>`);
+    if(s.badges){
+      html+=`<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:4px">`;
+      s.badges.forEach(b=>{const[type,txt]=b.split(':');html+=`<span class="pd-badge ${type}">${txt}</span>`;});
+      html+=`</div>`;
+    }
+    if(s.items){
+      s.items.forEach(item=>{
+        const label=item.label||item.cls;
+        html+=`<div style="display:flex;gap:6px;padding:3px 0;border-bottom:1px solid var(--border2)">
+          <span style="font-size:10px;font-weight:700;color:var(--gold);flex-shrink:0;min-width:70px">${label}</span>
+          <span class="pd-text" style="margin:0">${item.text}</span>
+        </div>`;
+      });
+    }
+    html+=`</div>`;
+  });
+  el.innerHTML=html;
 }
 
 // ── 初期化 ──
