@@ -1078,11 +1078,33 @@ function renderActions(isMyTurn){
     }
     if(p.cs>0){const cs=mkbtn(`令呪（${p.cs}画）`,'btn-red act-btn','ti-bolt');cs.onclick=showCS;ar.appendChild(cs);}
 
-  } else if(phase==='master'){
-    document.getElementById('act-label').textContent='③ マスターの行動';
+  } else if(phase==='master'||phase==='master_discard'){
+    document.getElementById('act-label').textContent='③ マスター：手札から1枚捨ててください';
+    let mSelIdx=-1;
+    renderMyHand(true,-1,[],idx=>{
+      mSelIdx=idx;
+      document.getElementById('hand-row').querySelectorAll('.hc').forEach((d,i)=>{d.className=`hc${i===idx?' sel':''}`;});
+      mDiscBtn.disabled=false;
+      hint.textContent=`${localHand[idx]?.sv}（${localHand[idx]?.t}/${localHand[idx]?.p}）を捨てる`;
+    });
+    const mDiscBtn=mkbtn('選択したカードを捨てる','btn-gold act-btn','ti-trash');
+    mDiscBtn.disabled=true;
+    mDiscBtn.onclick=()=>{
+      if(mSelIdx<0)return;
+      doAction({type:'master_discard',cardIdx:mSelIdx});
+    };
+    ar.appendChild(mDiscBtn);
+
+  } else if(phase==='master_action'){
+    document.getElementById('act-label').textContent='④ マスターの行動';
+    const gs2=gameState;const p2=gs2.players[myId];
+    const steps=p2.masterDiscPow||0;
     renderMyHand(false,-1,[]);
-    const y=mkbtn('SVに同行する','btn-gold act-btn','ti-walk');y.onclick=()=>doAction({type:'master_follow'});ar.appendChild(y);
-    const n=mkbtn('その場に留まる','act-btn','ti-home');n.onclick=()=>doAction({type:'master_stay'});ar.appendChild(n);
+    const mv=mkbtn(`移動する（${steps}マス）`,'btn-gold act-btn','ti-walk');
+    mv.onclick=()=>{mv.disabled=true;ar.querySelectorAll('button').forEach(b=>b.disabled=true);doAction({type:'master_move',steps});};
+    const wait=mkbtn('その場で待機する','act-btn','ti-home');
+    wait.onclick=()=>doAction({type:'master_wait'});
+    ar.appendChild(mv);ar.appendChild(wait);
 
   } else if(phase==='cell'){
     document.getElementById('act-label').textContent='④ マスの効果';
@@ -1210,7 +1232,7 @@ async function doAction(action){
     if(!p.sdead&&p.cls==='セイバー'&&!p.hidden)steps+=1;
     const newPos=Math.min(p.spos+steps,gs.cells.length-1);
     updates[`rooms/${roomCode}/game/players/${myId}/spos`]=newPos;
-    updates[`rooms/${roomCode}/game/phase`]='master';
+    updates[`rooms/${roomCode}/game/phase`]=p.sdead?'master_discard':'master_discard';
     addLog(`${p.name} のSVが ${steps}マス進む → ${newPos+1}マス目`);
     if(newPos>=gs.cells.length-1){updates[`rooms/${roomCode}/game/winner`]=myId;}
 
@@ -1285,6 +1307,26 @@ async function doAction(action){
     updates[`rooms/${roomCode}/game/players/${myId}/revealed`]=true; // 一度公開されていたのでrevealed維持
     // phaseはdiscardのまま（手札を捨てるフェーズへ進む）
     addLog(`${p.name}（アサシン）が行動消費なしで霊体化！`,'le');
+  } else if(action.type==='master_discard'){
+    const card=localHand[action.cardIdx];
+    if(!card)return;
+    const newHand=localHand.filter((_,i)=>i!==action.cardIdx);
+    updates[`rooms/${roomCode}/game/hands/${myId}`]=newHand;
+    updates[`rooms/${roomCode}/game/players/${myId}/masterDiscPow`]=card.p;
+    localHand=newHand;
+    updates[`rooms/${roomCode}/game/phase`]='master_action';
+    addLog(`${p.name} のマスターが ${card.t}（${card.p}）を捨てた`);
+
+  } else if(action.type==='master_move'){
+    const newPos=Math.min((p.mpos||0)+action.steps,(gs.cells||[]).length-1);
+    updates[`rooms/${roomCode}/game/players/${myId}/mpos`]=newPos;
+    updates[`rooms/${roomCode}/game/phase`]='draw1';
+    addLog(`${p.name} のマスターが ${action.steps}マス移動 → ${newPos+1}マス目`);
+
+  } else if(action.type==='master_wait'){
+    updates[`rooms/${roomCode}/game/phase`]='draw1';
+    addLog(`${p.name} のマスターは ${(p.mpos||0)+1}マス目で待機`);
+
   } else if(action.type==='skip_to_draw'){
     updates[`rooms/${roomCode}/game/phase`]='draw2';
   }
@@ -1365,13 +1407,17 @@ function renderCombatActions(){
 
 function getCombatTargets(p){
   const gs=gameState;if(!gs)return[];
-  const onBattle=pos=>gs.cells[pos]==='battle'||gs.cells[pos]==='battle_remote';
+  const cells=gs.cells||[];
+  const onBattle=pos=>cells[pos]==='battle'||cells[pos]==='battle_remote';
   return Object.values(gs.players||{}).filter(q=>{
     if(q.id===p.id||q.mdead)return false;
-    if(gs.cells[p.spos]==='safe')return false;
-    if(p.spos===0||q.spos===0)return false;
-    if(!p.sdead&&!q.sdead&&q.spos===p.spos)return true;
-    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden)return true;
+    // SV同士：同じマス（安置・スタート除く）
+    if(!p.sdead&&!q.sdead&&q.spos===p.spos&&cells[p.spos]!=='safe'&&p.spos!==0)return true;
+    // SV同士：交戦マス広域
+    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden&&p.spos!==0&&q.spos!==0)return true;
+    // マスター同士：同じマス（SVが同じマスにいない場合のみ）
+    const svSameSquad=Object.values(gs.players||{}).some(r=>r.id!==p.id&&!r.sdead&&r.spos===p.mpos);
+    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&cells[p.mpos]!=='safe'&&!svSameSquad)return true;
     return false;
   });
 }
@@ -2286,10 +2332,13 @@ function demoGetTargets(p){
   const onBattle=pos=>demoCells[pos]==='battle'||demoCells[pos]==='battle_remote';
   return demoPlayers.filter(q=>{
     if(q.id===p.id||demoElim(q))return false;
-    if(demoCells[p.spos]==='safe')return false;
-    if(p.spos===0||q.spos===0)return false;
-    if(!p.sdead&&!q.sdead&&q.spos===p.spos)return true;
-    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden)return true;
+    // SV同士：同じマス（安置・スタート除く）
+    if(!p.sdead&&!q.sdead&&q.spos===p.spos&&demoCells[p.spos]!=='safe'&&p.spos!==0)return true;
+    // SV同士：交戦マス広域
+    if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden&&p.spos!==0&&q.spos!==0)return true;
+    // マスター同士：同じマス（SVが同じマスにいない場合のみ）
+    const svSameSquad=demoPlayers.some(r=>r.id!==p.id&&!r.sdead&&r.spos===p.mpos);
+    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&demoCells[p.mpos]!=='safe'&&!svSameSquad)return true;
     return false;
   });
 }
