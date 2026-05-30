@@ -1154,7 +1154,11 @@ function renderActions(isMyTurn){
     renderCounterChoice();
   } else if(phase==='draw2'){
     renderMyHand(false,-1,[]);
-    doClientFinalDraw();
+    if(isMyTurn){
+      const b=mkbtn('手札補充して次のターンへ','btn-gold act-btn','ti-player-skip-forward');
+      b.onclick=()=>doAction({type:'final_draw_done'});
+      ar.appendChild(b);
+    }
   }
 }
 
@@ -1329,6 +1333,26 @@ async function doAction(action){
 
   } else if(action.type==='skip_to_draw'){
     updates[`rooms/${roomCode}/game/phase`]='draw2';
+
+  } else if(action.type==='final_draw_done'){
+    // 手札を3枚に補充
+    const deck=gs.deck||[];
+    let hand=[...localHand];
+    let deckCopy=[...deck];
+    while(hand.length<3&&deckCopy.length>0){hand.push(deckCopy.shift());}
+    updates[`rooms/${roomCode}/game/hands/${myId}`]=hand;
+    updates[`rooms/${roomCode}/game/deck`]=deckCopy;
+    localHand=hand;
+    // 次のプレイヤーへ
+    const order=gs.turnOrder||Object.keys(gs.players||{});
+    const alive=order.filter(id=>{const p2=gs.players[id];return p2&&!p2.mdead;});
+    const curIdx=alive.indexOf(gs.turn||myId);
+    const nextId=alive[(curIdx+1)%alive.length];
+    updates[`rooms/${roomCode}/game/turn`]=nextId;
+    updates[`rooms/${roomCode}/game/phase`]='discard';
+    updates[`rooms/${roomCode}/game/round`]=(gs.round||1)+(curIdx+1>=alive.length?1:0);
+    updates[`rooms/${roomCode}/game/combatDone`]=false;
+    addLog(`── ${gs.players[nextId]?.name} のターン ──`);
   }
 
   await window._db.ref('/').update(updates);
