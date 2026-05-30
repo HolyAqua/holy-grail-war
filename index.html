@@ -1415,9 +1415,9 @@ function getCombatTargets(p){
     if(!p.sdead&&!q.sdead&&q.spos===p.spos&&cells[p.spos]!=='safe'&&p.spos!==0)return true;
     // SV同士：交戦マス広域
     if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden&&p.spos!==0&&q.spos!==0)return true;
-    // マスター同士：同じマス（SVが同じマスにいない場合のみ）
-    const svSameSquad=Object.values(gs.players||{}).some(r=>r.id!==p.id&&!r.sdead&&r.spos===p.mpos);
-    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&cells[p.mpos]!=='safe'&&!svSameSquad)return true;
+    // マスター同士：同じマス（そのマスに誰かのSVもいない場合）
+    const svOnMyMasterSquare=Object.values(gs.players||{}).some(r=>!r.sdead&&r.spos===p.mpos);
+    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&cells[p.mpos]!=='safe'&&!svOnMyMasterSquare)return true;
     return false;
   });
 }
@@ -2336,9 +2336,9 @@ function demoGetTargets(p){
     if(!p.sdead&&!q.sdead&&q.spos===p.spos&&demoCells[p.spos]!=='safe'&&p.spos!==0)return true;
     // SV同士：交戦マス広域
     if(!p.sdead&&!q.sdead&&onBattle(p.spos)&&onBattle(q.spos)&&!q.hidden&&p.spos!==0&&q.spos!==0)return true;
-    // マスター同士：同じマス（SVが同じマスにいない場合のみ）
-    const svSameSquad=demoPlayers.some(r=>r.id!==p.id&&!r.sdead&&r.spos===p.mpos);
-    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&demoCells[p.mpos]!=='safe'&&!svSameSquad)return true;
+    // マスター同士：同じマス（そのマスに自分のSVも相手のSVもいない場合）
+    const svOnMyMasterSquare=demoPlayers.some(r=>!r.sdead&&r.spos===p.mpos);
+    if(!p.mdead&&!q.mdead&&q.mpos===p.mpos&&p.mpos!==0&&demoCells[p.mpos]!=='safe'&&!svOnMyMasterSquare)return true;
     return false;
   });
 }
@@ -2669,36 +2669,36 @@ function demoMasterBattleResult(){
     ro.className='result-ov draw show';
     document.getElementById('res-icon').textContent='⚡';
     document.getElementById('res-text').textContent='DRAW';
-    document.getElementById('res-detail').textContent='相打ち';
+    document.getElementById('res-detail').textContent='相打ち（両者続行）';
     document.getElementById('res-next-btn').onclick=()=>{document.getElementById('battle-screen').classList.remove('show');demoBattle=null;demoPhase='draw1';renderDemoGame();};
   } else if(win){
-    // 攻撃側勝利：防衛側マスター死亡
+    // 攻撃側勝利：防衛側マスターはロスト
     ro.className='result-ov win show';
     document.getElementById('res-icon').textContent='⚔';
     document.getElementById('res-text').textContent='VICTORY';
-    document.getElementById('res-detail').textContent=`${atk.name} の勝利！${def.name} のマスターを1マス目へ`;
+    document.getElementById('res-detail').textContent=`${atk.name} の勝利！${def.name} はロスト`;
     document.getElementById('res-next-btn').onclick=()=>{
       document.getElementById('battle-screen').classList.remove('show');
-      def.mpos=0;
-      addLog(`${def.name} のマスターが1マス目へ送還！`,'le');
-      drawDemoBoard();demoBattle=null;demoPhase='draw1';renderDemoGame();
-    };
-  } else {
-    // 防衛側勝利：攻撃側マスター死亡
-    ro.className='result-ov lose show';
-    document.getElementById('res-icon').textContent='💀';
-    document.getElementById('res-text').textContent='DEFEAT';
-    document.getElementById('res-detail').textContent=`${atk.name} のマスターが敗北！`;
-    document.getElementById('res-next-btn').onclick=()=>{
-      document.getElementById('battle-screen').classList.remove('show');
-      atk.mdead=true;
-      addLog(`${atk.name} がゲームオーバー！`,'lb');
-      showDefeatFX(atk.name,'マスター',()=>{
+      def.mdead=true;
+      addLog(`${def.name} がロスト！`,'lb');
+      showDefeatFX(def.name,'マスター',()=>{
         drawDemoBoard();
         const alive=demoPlayers.filter(q=>!demoElim(q));
         if(alive.length===1){demoWin(alive[0]);}
         else{demoBattle=null;demoPhase='draw1';renderDemoGame();}
       });
+    };
+  } else {
+    // 防衛側勝利：攻撃側マスターはスタートへ送還
+    ro.className='result-ov lose show';
+    document.getElementById('res-icon').textContent='🛡';
+    document.getElementById('res-text').textContent='DEFEAT';
+    document.getElementById('res-detail').textContent=`${def.name} が防衛成功！${atk.name} はスタートへ`;
+    document.getElementById('res-next-btn').onclick=()=>{
+      document.getElementById('battle-screen').classList.remove('show');
+      atk.mpos=0;
+      addLog(`${atk.name} のマスターがスタートへ送還！`,'le');
+      drawDemoBoard();demoBattle=null;demoPhase='draw1';renderDemoGame();
     };
   }
 }
@@ -2707,13 +2707,17 @@ function showWinScreen(p){
   const ws=document.getElementById('win-screen');
   document.getElementById('win-name').textContent=p.name;
   document.getElementById('win-cls').textContent=`${p.cls} / ${p.sv||''}`;
-  // 画像
   const imgs=document.getElementById('win-imgs');imgs.innerHTML='';
   if(p.masterImg){
     imgs.innerHTML+=`<div style="text-align:center"><img src="${p.masterImg}" style="width:100px;height:140px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid rgba(201,168,76,.5)"><div style="font-size:11px;color:rgba(201,168,76,.6);margin-top:4px">MASTER</div></div>`;
+  } else {
+    imgs.innerHTML+=`<div style="text-align:center"><div style="width:100px;height:140px;border-radius:10px;border:2px solid rgba(201,168,76,.3);background:rgba(201,168,76,.08);display:flex;align-items:center;justify-content:center;font-size:40px">👤</div><div style="font-size:11px;color:rgba(201,168,76,.6);margin-top:4px">MASTER</div></div>`;
   }
   if(p.servantImg){
     imgs.innerHTML+=`<div style="text-align:center"><img src="${p.servantImg}" style="width:100px;height:140px;object-fit:cover;object-position:top;border-radius:10px;border:2px solid rgba(201,168,76,.5)"><div style="font-size:11px;color:rgba(201,168,76,.6);margin-top:4px">SERVANT</div></div>`;
+  } else {
+    const clsColor=CC[p.cls]||'#c9a84c';
+    imgs.innerHTML+=`<div style="text-align:center"><div style="width:100px;height:140px;border-radius:10px;border:2px solid ${clsColor}55;background:${clsColor}11;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><i class="ti ${CI[p.cls]||'ti-star'}" style="font-size:36px;color:${clsColor}"></i><div style="font-size:11px;color:${clsColor};font-weight:700">${p.cls}</div></div><div style="font-size:11px;color:rgba(201,168,76,.6);margin-top:4px">${p.sv||'SERVANT'}</div></div>`;
   }
   // パーティクル
   const pc=document.getElementById('win-particles');pc.innerHTML='';
